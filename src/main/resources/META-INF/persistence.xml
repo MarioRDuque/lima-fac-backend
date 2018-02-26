@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="pe.limatambo_limatambo-backend_jar_0.0.1-SNAPSHOTPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>pe.limatambo.entidades.Cliente</class>
+    <class>pe.limatambo.entidades.Menuopcion</class>
+    <class>pe.limatambo.entidades.Persona</class>
+    <class>pe.limatambo.entidades.Inventario</class>
+    <class>pe.limatambo.entidades.Pais</class>
+    <class>pe.limatambo.entidades.Almacen</class>
+    <class>pe.limatambo.entidades.Unidadmedida</class>
+    <class>pe.limatambo.entidades.Inventariototal</class>
+    <class>pe.limatambo.entidades.Ubigeo</class>
+    <class>pe.limatambo.entidades.Empresa</class>
+    <class>pe.limatambo.entidades.Detallepedido</class>
+    <class>pe.limatambo.entidades.Pagotarjeta</class>
+    <class>pe.limatambo.entidades.Tipoubigeo</class>
+    <class>pe.limatambo.entidades.Tipousuariomenuopcion</class>
+    <class>pe.limatambo.entidades.Pedido</class>
+    <class>pe.limatambo.entidades.Tipodocumento</class>
+    <class>pe.limatambo.entidades.Tipousuario</class>
+    <class>pe.limatambo.entidades.Productoprecioespecial</class>
+    <class>pe.limatambo.entidades.Usuario</class>
+    <class>pe.limatambo.entidades.Producto</class>
+    <class>pe.limatambo.entidades.Tipocliente</class>
+    <class>pe.limatambo.entidades.Opcion</class>
+    <class>pe.limatambo.entidades.Menu</class>
+    <class>pe.limatambo.entidades.Moneda</class>
+    <class>pe.limatambo.entidades.Tarifario</class>
+    <class>pe.limatambo.entidades.Usuarioacceso</class>
+    <class>pe.limatambo.entidades.Pagoefectivo</class>
+    <class>pe.limatambo.entidades.Tipocambio</class>
+    <class>pe.limatambo.entidades.Menutipousuario</class>
+    <class>pe.limatambo.entidades.Productomedida</class>
+    <class>pe.limatambo.entidades.Categoria</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/limatambo"/>
+      <property name="javax.persistence.jdbc.user" value="postgres"/>
+      <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+      <property name="javax.persistence.jdbc.password" value="root"/>
+    </properties>
+  </persistence-unit>
+</persistence>

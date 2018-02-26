@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2018-01-25T00:58:14 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rptAlertaPolizasAVencer" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7a7e0f6b-85ad-4488-8161-ce256ea7e6ef">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORTE_DIR" class="java.lang.String"/>
+	<parameter name="p_usuari" class="java.lang.String"/>
+	<parameter name="inicio" class="java.sql.Date"/>
+	<parameter name="fin" class="java.sql.Date"/>
+	<queryString>
+		<![CDATA[select pe.id as codigo, pe.descripcion as descripcion, pe.direccion as direccion, 
+pe.fechapedido as proforma, pe.fechaentrega as entrega, p.nombrecompleto as cliente
+from pedido pe, cliente c, persona p
+where pe.idcliente = c.id and c.idpersona = p.id
+and pe.fechaentrega between $P{inicio}  and $P{fin}]]>
+	</queryString>
+	<field name="codigo" class="java.lang.Long"/>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="direccion" class="java.lang.String"/>
+	<field name="proforma" class="java.sql.Date"/>
+	<field name="entrega" class="java.sql.Date"/>
+	<field name="cliente" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="91">
+			<staticText>
+				<reportElement x="80" y="45" width="400" height="26" uuid="7609a4d3-913c-4319-8c9d-c1d499bc2eab">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="false" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[PEDIDOS ENTREGADOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="433" y="0" width="46" height="15" uuid="5ac8c21b-ccc5-4ca8-b421-9d08a9f602df">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<text><![CDATA[FECHA  :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="480" y="0" width="75" height="15" uuid="a0292f03-a479-4b85-a0f2-8cd8fa299d92">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format(new Date())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="433" y="16" width="46" height="15" uuid="15e642e5-d2a4-4c7f-a243-09b511bf863d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<text><![CDATA[HORA    :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="480" y="15" width="75" height="15" uuid="3d9b12b6-bc41-450e-98f4-62a0558ece63">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("hh:mm:ss aa").format(new Date())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="433" y="30" width="55" height="15" forecolor="#080707" uuid="b4e1600f-9dc9-40d2-92a3-97edab9ae308">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["PAGINA "+$V{PAGE_NUMBER}+" DE "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="488" y="30" width="66" height="15" forecolor="#080707" uuid="90053344-cb1b-40a8-876e-f90d13ab7271">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="86" width="555" height="1" uuid="30464341-9ad9-499c-b2cf-9a788bcb09e1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="0" width="170" height="15" uuid="26dd2783-2d33-41f1-873d-6ceae9eccef5"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<text><![CDATA[LIMA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="15" width="60" height="15" uuid="ee59477c-dbc6-49c6-a74b-3b1566502b25">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<text><![CDATA[CHULUCANAS]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="50" y="30" width="120" height="15" uuid="f2c0b7af-e7e3-4d8b-8f04-e0c36e249053">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_usuari}.toUpperCase()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="30" width="50" height="15" uuid="c549ecf5-8d90-47d3-b5f5-f1050684c328">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<text><![CDATA[USUARIO:]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="153" splitType="Stretch">
+			<textField>
+				<reportElement x="114" y="8" width="440" height="20" uuid="ffdfc7d1-7767-475e-a7db-f0357a233caf"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="114" y="50" width="439" height="20" uuid="e5ef4d21-2cef-4ca5-aafd-a718de1b5894"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="114" y="29" width="439" height="20" uuid="bb335ad9-ab36-4641-b425-e7262dfb8585">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="51" width="103" height="20" uuid="5beb3ebf-9391-46ac-987f-6b38f1f38f8c"/>
+				<text><![CDATA[Cliente:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="31" width="103" height="20" uuid="501c72a6-85d4-4f7c-aeac-c1021d052cc2"/>
+				<text><![CDATA[Descripcion:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="11" width="103" height="20" uuid="80f1605d-299d-4336-9312-1d3591d8c817"/>
+				<text><![CDATA[Codigo del pedido:]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="140" width="555" height="1" uuid="91ee068c-6981-48cb-8f30-ab9d15dc6fb5"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="11" y="71" width="102" height="20" uuid="c5697667-1d83-466a-a02f-a391415e8c02"/>
+				<text><![CDATA[Dreccion:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="114" y="70" width="439" height="20" uuid="57cc3717-5317-48ce-a1c5-9edf602e54bc"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{direccion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="91" width="103" height="20" uuid="09ef32a6-adca-4e9b-b1a6-627a6f77ac96"/>
+				<text><![CDATA[Fecha de proforma:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="111" width="102" height="20" uuid="e740bb57-b8b0-4461-9a13-19604c35ed3c"/>
+				<text><![CDATA[Fecha de entrega:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="114" y="90" width="439" height="20" uuid="eb92d899-5b38-46a9-a7da-fab1e1da9e44"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{proforma}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="114" y="110" width="439" height="20" uuid="5a3a8a30-cac3-4327-9b37-9e1e927449d5"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{entrega}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="26" splitType="Stretch">
+			<staticText>
+				<reportElement x="3" y="6" width="340" height="20" uuid="d0b2a669-f2ac-4b2f-9338-6961f8c7d39b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Pedidos entregados.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="378" y="6" width="100" height="20" uuid="067b32bf-d46f-4b80-9fb5-d490588d4131">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="480" y="6" width="73" height="20" uuid="7d490cee-7003-4413-93ce-8e39530fb4f3"/>
+				<textElement textAlignment="Left">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" / " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="1" width="555" height="1" uuid="ae9069d7-111e-4e3c-b094-b80f5c75b9b6"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageFooter>
+	<noData>
+		<band height="50">
+			<staticText>
+				<reportElement x="0" y="9" width="535" height="20" uuid="53d0e35d-deef-46b1-8fd7-4251485042ca">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No se encontraron datos para mostrar]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>
