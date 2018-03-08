@@ -32,6 +32,10 @@ import pe.limatambo.util.BusquedaPaginada;
 import pe.limatambo.util.Criterio;
 import pe.limatambo.util.LimatamboUtil;
 import pe.limatambo.util.Mensaje;
+
+//crear archivo plano
+import java.io.File;
+import java.io.FileWriter;
 /**
  *
  * @author dev-out-03
@@ -60,16 +64,108 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
 
     @Override
     public Pedido guardar(Pedido pedido) {
-        if(pedido != null) {
+        if(pedido != null) 
+        {
             pedido.setEstado(Boolean.TRUE);
             TimeZone.setDefault(TimeZone.getTimeZone("America/Lima"));
             pedido.setFechapedido(new Date());
-            pedido = pedidoDao.insertar(pedido);
-            for (Detallepedido detalle : pedido.getDetallePedidoList()) {
+            pedido = pedidoDao.insertar(pedido);// cabecera
+            for (Detallepedido detalle : pedido.getDetallePedidoList()) 
+            {
                 detalle.setIdpedido(pedido.getId());
-                pedidoDetalleDao.insertar(detalle);
+                pedidoDetalleDao.insertar(detalle);// detalle     
+                //guardar archivo texto cab -  dat            
+               //DATOS QUE DE ARCHIVO CAB
+                String tip_ope="01"; //TIPO DE OPERACIÓN // 01 FACTURA - 03 BOLETA DE VENTA  07 NOTA DE CREDITO 08 NOTA DE CARGO
+                Date fecha_emision=pedido.getFechapedido(); //FECHA DE EMISIÓN
+                String cod_doc="001"; //Codigo de domicilio fiscal
+                String tip_documento="1"; //Tipo de documento de identidad
+                String numero_doc=pedido.getIdcliente().getIdpersona().getNumdocumento(); //Número de documento de identidad del adquirente o usuario
+                String nombre=pedido.getIdcliente().getIdpersona().getNombrecompleto(); //Apellidos y nombres, denominación o razón social del adquirente o usuario
+                String cod_moneda="PEN"; //Tipo de moneda en la cual se emite la factura electrónica
+                String dec_glo="0.00"; //Descuentos Globales
+                String sum_carg="0.00"; //Sumatoria otros Cargos
+                String tot_desc="0.00"; //Total descuentos
+                String tot_sin_igv="21.19"; //Total valor de venta – Operaciones gravadas sin IGV
+                String tot_val_ope_inaf="0.00"; //Total valor de venta – Operaciones inafectas
+                String tot_val_ope_exo="0.00"; //Total valor de venta – Operaciones exoneradas
+                String igv="3.81"; //Sumatoria IGV
+                String isc="0.00"; //Sumatoria ISC
+                String sum_otros_trib="0.00"; //Sumatoria otros tributos
+                String importe_total="25.00"; //Importe total de la venta, cesión en uso o del servicio prestado
+                
+                //DATOS DEL ARCHIVO PLANO .DET
+                String cod_item="EA"; //Código de unidad de medida por ítem
+                String cantidad_unid="1.000";// Cantidad de unidades por ítem
+                String cod_producto="317"; // codigo de producto
+                String cod_prod_sunat=""; // codigo de producto sunat
+                String descripcion="DEDUCIBLE DE CONSULTA  MAPFRE SEGUROS"; // Del servicio prestado, bien vendido o cedido en uso, indicando las características.
+                String valor_unit="42.3700";// Valor unitario de producto
+                String descuento="0.00";//descuentos por el total de la linea
+                String igv_item="7.63";//Monto de IGV por ítem
+                String afet_igv="10";//Afectación al IGV
+                String tip_isc_item="0.00";//Monto de ISC por ítem
+                String tip_sist_isc="01";//Tipo de sistema ISC
+                String precio_unit="50.0000";//Precio de venta unitario por item    
+                String valor_venta="42.37"; //VALOR DE VENTA POR ITEM
+                
+                try
+                {
+                    //NOMBRE DEL ARCHIVO PLANO 
+                    String ruc="20525904424";
+                    String tip_doc="03";
+                    String serie="B002";
+                    String correlativo="00007740";
+                    
+                    //RUTA DONDE SE GUARDAN LOS ARCHIVOS PLANOS
+                    String ruta="src/main/java/archivos_planos/";
+                    
+                    //NOMBRE ARCHIVO PLANO .CAT
+                    String cab=ruc+"-"+tip_doc+"-"+serie+"-"+correlativo;
+                    File cabecera=new File(ruta+""+cab+".CAB");
+                    
+                    //NOMBRE DEL ARCHIVO PLANO .DET
+                    String det=ruc+"-"+tip_doc+"-"+serie+"-"+correlativo;
+                    File detalle_det=new File(ruta+""+det+".DET");
+                    
+                    
+                    //Crear un objeto File se encarga de crear o abrir acceso a un archivo que se especifica en su constructor
+                    //Crear objeto FileWriter que sera el que nos ayude a escribir sobre archivo
+                    FileWriter escribir=new FileWriter(cabecera,true);
+                    //Escribimos en el archivo con el metodo write 
+                    escribir.write(tip_ope+"|"+fecha_emision+"|"+cod_doc+"|"+tip_documento+"|"+numero_doc+"|"+nombre+"|"+cod_moneda+"|"+dec_glo+
+                            "|"+sum_carg+"|"+tot_desc+"|"+tot_sin_igv+"|"+tot_val_ope_inaf+"|"+tot_val_ope_exo+"|"+igv+"|"+
+                            isc+"|"+sum_otros_trib+"|"+importe_total);
+
+                    //ESCRIBIR EL ARCHIVO PLANO .DET
+                    FileWriter escribir_detalle=new FileWriter(detalle_det,true);
+                    //Escribimos en el archivo con el metodo write 
+                    escribir_detalle.write(cod_item+"|"+
+                                           cantidad_unid+"|"+
+                                           cod_producto+"|"+
+                                           cod_prod_sunat+"|"+
+                                           descripcion+"|"+
+                                           valor_unit+"|"+
+                                           descuento+"|"+
+                                           igv_item+"|"+
+                                           afet_igv+"|"+
+                                           tip_isc_item+"|"+
+                                           tip_sist_isc+"|"+
+                                           precio_unit+"|"+
+                                           valor_venta+"|");
+                    //Cerramos la conexion
+                    escribir_detalle.close();
+                }
+                //Si existe un problema al escribir cae aqui
+                catch(Exception e)
+                {
+                System.out.println("Error al escribir");
+                }
+                // fin archivo plano cabecera
             }
-        } else{
+        }
+        else
+        {
             throw new GeneralException("Evento nulo", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
         }
         return pedido;
