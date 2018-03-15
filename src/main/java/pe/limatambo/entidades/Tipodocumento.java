@@ -41,7 +41,10 @@ public class Tipodocumento implements Serializable {
     private String abreviatura;
     @Column(name = "estado")
     private Boolean estado;
-
+    @Size(max = 2)
+    @Column(name = "tipo")
+    private String tipo;
+    
     public Tipodocumento() {
     }
 

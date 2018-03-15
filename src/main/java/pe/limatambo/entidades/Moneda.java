@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import lombok.Data;
+import lombok.NonNull;
 
 /**
  *
@@ -38,6 +39,10 @@ public class Moneda implements Serializable {
     @Size(max = 5)
     @Column(name = "simbolo")
     private String simbolo;
+    @Size(max = 5)
+    @NonNull
+    @Column(name = "simbolosunat")
+    private String simbolosunat;
 
     public Moneda() {
     }

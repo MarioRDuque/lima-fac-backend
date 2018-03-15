@@ -46,7 +46,6 @@ import java.io.FileWriter;
 public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> implements PedidoServicio {
 
     private final Logger loggerServicio = LoggerFactory.getLogger(getClass());
-    
     @Autowired
     private GenericoDao<Pedido, Integer> pedidoDao;
     @Autowired
@@ -73,9 +72,8 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
             for (Detallepedido detalle : pedido.getDetallePedidoList()) 
             {
                 detalle.setIdpedido(pedido.getId());
-                pedidoDetalleDao.insertar(detalle);// detalle     
-                //guardar archivo texto cab -  dat            
-               //DATOS QUE DE ARCHIVO CAB
+                pedidoDetalleDao.insertar(detalle);// detalle       
+                //DATOS QUE DE ARCHIVO CAB
                 String tip_ope="01"; //TIPO DE OPERACIÓN // 01 FACTURA - 03 BOLETA DE VENTA  07 NOTA DE CREDITO 08 NOTA DE CARGO
                 Date fecha_emision=pedido.getFechapedido(); //FECHA DE EMISIÓN
                 String cod_doc="001"; //Codigo de domicilio fiscal
@@ -93,7 +91,6 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
                 String isc="0.00"; //Sumatoria ISC
                 String sum_otros_trib="0.00"; //Sumatoria otros tributos
                 String importe_total="25.00"; //Importe total de la venta, cesión en uso o del servicio prestado
-                
                 //DATOS DEL ARCHIVO PLANO .DET
                 String cod_item="EA"; //Código de unidad de medida por ítem
                 String cantidad_unid="1.000";// Cantidad de unidades por ítem
@@ -108,35 +105,38 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
                 String tip_sist_isc="01";//Tipo de sistema ISC
                 String precio_unit="50.0000";//Precio de venta unitario por item    
                 String valor_venta="42.37"; //VALOR DE VENTA POR ITEM
-                
-                try
-                {
+                try{
                     //NOMBRE DEL ARCHIVO PLANO 
                     String ruc="20525904424";
                     String tip_doc="03";
                     String serie="B002";
                     String correlativo="00007740";
-                    
                     //RUTA DONDE SE GUARDAN LOS ARCHIVOS PLANOS
                     String ruta="src/main/java/archivos_planos/";
-                    
                     //NOMBRE ARCHIVO PLANO .CAT
                     String cab=ruc+"-"+tip_doc+"-"+serie+"-"+correlativo;
                     File cabecera=new File(ruta+""+cab+".CAB");
-                    
                     //NOMBRE DEL ARCHIVO PLANO .DET
                     String det=ruc+"-"+tip_doc+"-"+serie+"-"+correlativo;
                     File detalle_det=new File(ruta+""+det+".DET");
-                    
-                    
-                    //Crear un objeto File se encarga de crear o abrir acceso a un archivo que se especifica en su constructor
-                    //Crear objeto FileWriter que sera el que nos ayude a escribir sobre archivo
                     FileWriter escribir=new FileWriter(cabecera,true);
-                    //Escribimos en el archivo con el metodo write 
-                    escribir.write(tip_ope+"|"+fecha_emision+"|"+cod_doc+"|"+tip_documento+"|"+numero_doc+"|"+nombre+"|"+cod_moneda+"|"+dec_glo+
-                            "|"+sum_carg+"|"+tot_desc+"|"+tot_sin_igv+"|"+tot_val_ope_inaf+"|"+tot_val_ope_exo+"|"+igv+"|"+
-                            isc+"|"+sum_otros_trib+"|"+importe_total);
-
+                    escribir.write(tip_ope+"|"+
+                                   fecha_emision+"|"+
+                                   cod_doc+"|"+
+                                   tip_documento+"|"+
+                                   numero_doc+"|"+
+                                   nombre+"|"+
+                                   cod_moneda+"|"+
+                                   dec_glo+"|"+
+                                   sum_carg+"|"+
+                                   tot_desc+"|"+
+                                   tot_sin_igv+"|"+
+                                   tot_val_ope_inaf+"|"+
+                                   tot_val_ope_exo+"|"+
+                                   igv+"|"+
+                                   isc+"|"+
+                                   sum_otros_trib+"|"+
+                                   importe_total);
                     //ESCRIBIR EL ARCHIVO PLANO .DET
                     FileWriter escribir_detalle=new FileWriter(detalle_det,true);
                     //Escribimos en el archivo con el metodo write 
@@ -153,19 +153,12 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
                                            tip_sist_isc+"|"+
                                            precio_unit+"|"+
                                            valor_venta+"|");
-                    //Cerramos la conexion
                     escribir_detalle.close();
+                } catch(Exception e){
+                    System.out.println("Error al escribir");
                 }
-                //Si existe un problema al escribir cae aqui
-                catch(Exception e)
-                {
-                System.out.println("Error al escribir");
-                }
-                // fin archivo plano cabecera
             }
-        }
-        else
-        {
+        } else {
             throw new GeneralException("Evento nulo", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
         }
         return pedido;
