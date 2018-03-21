@@ -74,7 +74,7 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
                 detalle.setIdpedido(pedido.getId());
                 pedidoDetalleDao.insertar(detalle);// detalle       
                 //DATOS QUE DE ARCHIVO CAB
-                String tip_ope="01"; //TIPO DE OPERACIÓN // 01 FACTURA - 03 BOLETA DE VENTA  07 NOTA DE CREDITO 08 NOTA DE CARGO
+                String tip_ope="01"; //TIPO DE OPERACIÓN // 01:venta interna; 02:exportacion
                 Date fecha_emision=pedido.getFechapedido(); //FECHA DE EMISIÓN
                 String cod_doc="001"; //Codigo de domicilio fiscal
                 String tip_documento="1"; //Tipo de documento de identidad
@@ -108,7 +108,7 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
                 try{
                     //NOMBRE DEL ARCHIVO PLANO 
                     String ruc="20525904424";
-                    String tip_doc="03";
+                    String tip_doc="03"; //01 FACTURA - 03 BOLETA DE VENTA  07 NOTA DE CREDITO 08 NOTA DE CARGO
                     String serie="B002";
                     String correlativo="00007740";
                     //RUTA DONDE SE GUARDAN LOS ARCHIVOS PLANOS
@@ -147,7 +147,7 @@ public class PedidoServicioImp extends GenericoServicioImpl<Pedido, Integer> imp
                                            descripcion+"|"+
                                            valor_unit+"|"+
                                            descuento+"|"+
-                                           igv_item+"|"+
+                                           igv_item+"|"+//al reves #9:afectaba igv(20:si; 10;no); #10:igv por item
                                            afet_igv+"|"+
                                            tip_isc_item+"|"+
                                            tip_sist_isc+"|"+

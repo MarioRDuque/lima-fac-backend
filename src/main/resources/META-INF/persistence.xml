@@ -35,6 +35,7 @@
     <class>pe.limatambo.entidades.Categoria</class>
     <class>pe.limatambo.entidades.Venta</class>
     <class>pe.limatambo.entidades.Ventadet</class>
+    <class>pe.limatambo.entidades.Parametro</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/limatambo"/>
       <property name="javax.persistence.jdbc.user" value="postgres"/>

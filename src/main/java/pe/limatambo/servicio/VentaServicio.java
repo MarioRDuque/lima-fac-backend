@@ -19,7 +19,9 @@ public interface VentaServicio extends GenericoServicio<Venta, Long>{
     BusquedaPaginada busquedaPaginada(Venta entidadBuscar, BusquedaPaginada busquedaPaginada, Integer idPedido,
             Date desde, Date hasta, String dni, String nombre, String usuario);
     Venta actualizar(Venta entidad);
-    Venta guardar(Venta entidad)  throws IOException;
+    Venta guardar(Venta entidad);
     public Venta obtener(Long id);
+    public void generarDocumentoCab(Long id) throws IOException;
     public void actualizarEstadoDetalle(Long id) throws GeneralException;
+    public void generarDocumentoDet(Long id) throws IOException;
 }

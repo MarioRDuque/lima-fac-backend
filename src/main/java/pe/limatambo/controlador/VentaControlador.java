@@ -42,15 +42,16 @@ public class VentaControlador {
         Respuesta resp = new Respuesta();
         if(entidad != null){
             try {
-                Venta pedidoGuardado =  ventaServicio.guardar(entidad);
-                if (pedidoGuardado != null ) {
+                Venta g =  ventaServicio.guardar(entidad);
+                if (g != null ) {
+                    ventaServicio.generarDocumentoCab(g.getId());
+                    ventaServicio.generarDocumentoDet(g.getId());
                     resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                     resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
-                    resp.setExtraInfo(pedidoGuardado.getId());
+                    resp.setExtraInfo(g.getId());
                 }else{
                     throw new GeneralException(Mensaje.ERROR_CRUD_GUARDAR, "Guardar retorno nulo", loggerControlador);
                 }
-                
             } catch (Exception e) {
                 throw e;
             }
@@ -84,15 +85,17 @@ public class VentaControlador {
     }
     
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity actualizar(HttpServletRequest request, @RequestBody Venta entidad) throws GeneralException {
+    public ResponseEntity actualizar(HttpServletRequest request, @RequestBody Venta entidad) throws GeneralException, IOException {
         Respuesta resp = new Respuesta();
         if(entidad != null){
             try {
-                Venta pedidoGuardado = ventaServicio.actualizar(entidad);
-                if (pedidoGuardado != null ) {
+                Venta a = ventaServicio.actualizar(entidad);
+                if (a != null ) {
+                    ventaServicio.generarDocumentoCab(a.getId());
+                    ventaServicio.generarDocumentoDet(a.getId());
                     resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                     resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
-                    resp.setExtraInfo(pedidoGuardado.getId());
+                    resp.setExtraInfo(a.getId());
                 } else {
                     throw new GeneralException(Mensaje.ERROR_CRUD, Mensaje.ERROR_CRUD_ACTUALIZAR, loggerControlador);
                 }
@@ -150,8 +153,7 @@ public class VentaControlador {
                 resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                 resp.setExtraInfo(pedido);
                 return new ResponseEntity<>(resp, HttpStatus.OK);
-            }
-            else{
+            } else {
                 throw new GeneralException(Mensaje.NO_EXISTEN_DATOS, Mensaje.NO_EXISTEN_DATOS, loggerControlador);
             }
         } catch (Exception e) {

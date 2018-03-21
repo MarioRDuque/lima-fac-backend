@@ -79,6 +79,10 @@ public class Ventadet implements Serializable {
     private double valorunitariosinigv;
     @Basic(optional = false)
     @NotNull
+    @Column(name = "preciototalsinigv")
+    private double preciototalsinigv;
+    @Basic(optional = false)
+    @NotNull
     @Column(name = "preciototal")
     private double preciototal;
     @Column(name = "estado")

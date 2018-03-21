@@ -23,9 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.limatambo.dao.GenericoDao;
+import pe.limatambo.entidades.Parametro;
 import pe.limatambo.entidades.Producto;
 import pe.limatambo.entidades.Productomedida;
-import pe.limatambo.entidades.Usuario;
 import pe.limatambo.excepcion.GeneralException;
 import pe.limatambo.util.BusquedaPaginada;
 import pe.limatambo.util.Criterio;
@@ -51,6 +51,8 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
     @Autowired
     private GenericoDao<Ventadet, Long> ventaDetalleDao;
     @Autowired
+    private GenericoDao<Parametro, Long> parametroDao;
+    @Autowired
     private GenericoDao<Productomedida, Integer> productomedidaDao;
     @Autowired
     private SessionFactory sessionFactory;
@@ -64,22 +66,19 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
     }
 
     @Override
-    public Venta guardar(Venta venta) throws IOException {
+    public Venta guardar(Venta venta){
         if (venta != null) {
             List<Ventadet> ventadelList = venta.getVentadetList();
             venta.setVentadetList(null);
             venta.setEstado(Boolean.TRUE);
             TimeZone.setDefault(TimeZone.getTimeZone("America/Lima"));
             venta.setFechaemision(new Date());
-            venta.setRucempresa("10480470848");
-            venta.setSerie("E001");
-            venta.setCorrelativo("00000001");
+            obtenerSerie(venta);
+            obtenerRuc(venta);
             venta = ventaDao.insertar(venta);// cabecera
-            this.generarDocumentoCab(venta);
             for (Ventadet detalle : ventadelList) {
                 detalle.setIdventa(venta.getId());
-                ventaDetalleDao.insertar(detalle);// detalle  
-                this.generarDocumentoDet(venta, detalle);
+                ventaDetalleDao.insertar(detalle);// detalle
             }
         } else {
             throw new GeneralException("Evento nulo", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
@@ -173,10 +172,13 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         return productomedidaDao.buscarPorCriteriaSinProyecciones(filtro);
     }
 
-    private void generarDocumentoCab(Venta venta) throws IOException {
-        String nombrecab = venta.getRucempresa() + "-" + venta.getIdtipodocumento().getTipo() + "-" + venta.getSerie() + "-" + venta.getCorrelativo();
+    @Override
+    public void generarDocumentoCab(Long id) throws IOException {
+        Venta venta = obtener(id);
+        String correlativo = LimatamboUtil.completarNumeroConCeros(8, venta.getCorrelativo());
+        String nombrecab = venta.getRucempresa() + "-" + venta.getTipooperacion() + "-" + venta.getSerie() + "-" + correlativo;
         File cabecera = new File(URL_DOC_CAB + "" + nombrecab + ".CAB");
-        FileWriter escribir = new FileWriter(cabecera, true);
+        FileWriter escribir = new FileWriter(cabecera, false);
         escribir.write(
                 venta.getTipooperacion() + "|"
                 + venta.getFechaemision() + "|"
@@ -194,31 +196,63 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 + venta.getIgv() + "|"
                 + venta.getIsc() + "|"
                 + venta.getSumaotrostrib() + "|"
-                + venta.getImportetotal()
+                + venta.getImportetotal() + "|"
         );
         escribir.close();
     }
 
-    private void generarDocumentoDet(Venta venta, Ventadet detalle) throws IOException {
-        String nombredet = venta.getRucempresa() + "-" + venta.getIdtipodocumento().getTipo() + "-" + venta.getSerie() + "-" + venta.getCorrelativo();
+    @Override
+    public void generarDocumentoDet(Long id) throws IOException {
+        Venta venta = obtener(id);
+        String correlativo = LimatamboUtil.completarNumeroConCeros(8, venta.getCorrelativo());
+        List<Ventadet> detalle = venta.getVentadetList();
+        String nombredet = venta.getRucempresa() + "-" + venta.getTipooperacion() + "-" + venta.getSerie() + "-" + correlativo;
         File detalle_det = new File(URL_DOC_DET + "" + nombredet + ".DET");
-        FileWriter escribir = new FileWriter(detalle_det, true);
-        escribir.write(
-                detalle.getIdunidadmedida().getAbreviatura() + "|"
-                + detalle.getCantidad() + "|"
-                + detalle.getIdproducto() + "|"
-                + detalle.getCodproductosunat() + "|"
-                + detalle.getIdproducto().getNombre() + "|"
-                + detalle.getValorunitariosinigv()+ "|"
-                + detalle.getDescuentounitario() + "|"
-                + detalle.getIgvitem() + "|"
-                + detalle.getAfectacionigv() + "|"
-                + detalle.getIscitem() + "|"
-                + detalle.getTiposistemaisc() + "|"
-                + detalle.getPreciounitario() + "|"
-                + detalle.getPreciototal() + "|"
-        );
+        FileWriter escribir = new FileWriter(detalle_det, false);
+        for (int i = 0; i < detalle.size(); i++) {
+            escribir.write(
+                "EA" + "|"
+                + detalle.get(i).getCantidad() + "|"
+                + detalle.get(i).getIdproducto().getId() + "|"
+                + detalle.get(i).getCodproductosunat() + "|"
+                + detalle.get(i).getIdproducto().getNombre() + "|"
+                + detalle.get(i).getValorunitariosinigv()+ "|"
+                + detalle.get(i).getDescuentounitario() + "|"
+                + detalle.get(i).getIgvitem() + "|"
+                + detalle.get(i).getAfectacionigv() + "|"
+                + detalle.get(i).getIscitem() + "|"
+                + detalle.get(i).getTiposistemaisc() + "|"
+                + detalle.get(i).getPreciototalsinigv()+ "|"
+                + detalle.get(i).getPreciototal() + "|" 
+                + "\n"
+            );
+        }
         escribir.close();
+    }
+
+    private void obtenerSerie(Venta venta) {
+        Criterio filtro;
+        filtro = Criterio.forClass(Parametro.class);
+        filtro.add(Restrictions.eq("estado", Boolean.TRUE));
+        filtro.add(Restrictions.eq("nombre", "SERIE"));
+        Parametro p = parametroDao.obtenerPorCriteriaSinProyecciones(filtro);
+        switch(venta.getTipooperacion()){
+            case "01":
+                venta.setSerie("F"+p.getValor());
+                break;
+            case "03":
+                venta.setSerie("B"+p.getValor());
+                break;
+        }
+    }
+
+    private void obtenerRuc(Venta venta) {
+        Criterio filtro;
+        filtro = Criterio.forClass(Parametro.class);
+        filtro.add(Restrictions.eq("estado", Boolean.TRUE));
+        filtro.add(Restrictions.eq("nombre", "RUC"));
+        Parametro p = parametroDao.obtenerPorCriteriaSinProyecciones(filtro);
+        venta.setRucempresa(p.getValor());
     }
 
 }

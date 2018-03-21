@@ -46,14 +46,12 @@ public class Venta implements Serializable {
     private Long id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 8)
+    @Size(min = 1, max = 4)
     @Column(name = "serie")
     private String serie;
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 12)
     @Column(name = "correlativo")
-    private String correlativo;
+    private Integer correlativo;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 15)
@@ -149,7 +147,7 @@ public class Venta implements Serializable {
         this.id = id;
     }
 
-    public Venta(Long id, String serie, String correlativo, String rucempresa, String tipooperacion, Date fechaemision, String domfiscal, Tipodocumento tipodocumento, String doccliente, String nombrecliente, Moneda codmoneda, double descglobal, double sumcargos, double totaldesc, double totalsinigv, double igv, double valoropeinaf, double valopeexo, double isc, double sumaotrostrib, double importetotal) {
+    public Venta(Long id, String serie, Integer correlativo, String rucempresa, String tipooperacion, Date fechaemision, String domfiscal, Tipodocumento tipodocumento, String doccliente, String nombrecliente, Moneda codmoneda, double descglobal, double sumcargos, double totaldesc, double totalsinigv, double igv, double valoropeinaf, double valopeexo, double isc, double sumaotrostrib, double importetotal) {
         this.id = id;
         this.serie = serie;
         this.correlativo = correlativo;
