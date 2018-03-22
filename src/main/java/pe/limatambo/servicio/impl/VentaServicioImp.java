@@ -109,12 +109,24 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
 
     @Override
     public BusquedaPaginada busquedaPaginada(Venta entidadBuscar, BusquedaPaginada busquedaPaginada,
-            Integer idVenta, Date desde, Date hasta, String dni, String nombre, String usuario) {
+            Integer idVenta, Date desde, Date hasta, String dni, String nombre, String usuario, String seriecorrelativo) {
         Criterio filtro;
         filtro = Criterio.forClass(Venta.class);
         filtro.add(Restrictions.eq("estado", Boolean.TRUE));
         if (idVenta != null && idVenta > 0) {
             filtro.add(Restrictions.eq("id", idVenta));
+        }
+        if(seriecorrelativo!=null){
+            String serie;
+            Integer correlativo;
+            int inicio = seriecorrelativo.indexOf("-");
+            if (inicio <= 0) {
+                throw new GeneralException("Formato erroneo de busqueda", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
+            }
+            serie = seriecorrelativo.substring(0, inicio);
+            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio+1));
+            filtro.add(Restrictions.eq("serie", serie));
+            filtro.add(Restrictions.eq("correlativo", correlativo));
         }
         if (dni != null) {
             filtro.add(Restrictions.ilike("doccliente", '%' + dni + '%'));
@@ -180,7 +192,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         File cabecera = new File(URL_DOC_CAB + "" + nombrecab + ".CAB");
         FileWriter escribir = new FileWriter(cabecera, false);
         escribir.write(
-                venta.getTipooperacion() + "|"
+                "01" + "|"
                 + venta.getFechaemision() + "|"
                 + venta.getDomfiscal() + "|"
                 + venta.getIdtipodocumento().getTipo() + "|"
@@ -218,8 +230,8 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 + detalle.get(i).getIdproducto().getNombre() + "|"
                 + detalle.get(i).getValorunitariosinigv()+ "|"
                 + detalle.get(i).getDescuentounitario() + "|"
-                + detalle.get(i).getIgvitem() + "|"
                 + detalle.get(i).getAfectacionigv() + "|"
+                + detalle.get(i).getIgvitem()+ "|"
                 + detalle.get(i).getIscitem() + "|"
                 + detalle.get(i).getTiposistemaisc() + "|"
                 + detalle.get(i).getPreciototalsinigv()+ "|"

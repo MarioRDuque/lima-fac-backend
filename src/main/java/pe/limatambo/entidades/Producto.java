@@ -45,6 +45,8 @@ public class Producto implements Serializable {
     private String ctacontable;
     @Column(name = "estado")
     private Boolean estado;
+    @Column(name = "afectoigv")
+    private Boolean afectoigv;
     @Column(name = "idpresentacion")
     private Integer idpresentacion;
     @Basic(optional = false)

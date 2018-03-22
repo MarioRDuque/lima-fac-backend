@@ -37,6 +37,32 @@ public class VentaControlador {
     @Autowired
     private VentaServicio ventaServicio;
     
+    @RequestMapping(value="notapedido/{id}", method = RequestMethod.GET)
+    public ResponseEntity notapedido(HttpServletRequest request, @PathVariable("id") Long id) throws GeneralException, IOException {
+        Respuesta resp = new Respuesta();
+        try {
+            Venta g =  ventaServicio.obtener(id);
+            if (g != null ) {
+                g.setId(null);
+                g.setTipooperacion("07");
+                g = ventaServicio.guardar(g);
+                ventaServicio.generarDocumentoCab(g.getId());
+                ventaServicio.generarDocumentoDet(g.getId());
+                g = ventaServicio.obtener(id);
+                g.setEstado(false);
+                ventaServicio.actualizar(g);
+                resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
+                resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
+                resp.setExtraInfo(g.getId());
+            }else{
+                throw new GeneralException(Mensaje.ERROR_CRUD_GUARDAR, "Guardar retorno nulo", loggerControlador);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
+    
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity crear(HttpServletRequest request, @RequestBody Venta entidad) throws GeneralException, IOException {
         Respuesta resp = new Respuesta();
@@ -67,7 +93,7 @@ public class VentaControlador {
                                                              @RequestBody Map<String, Object> parametros){
             Integer idPedido;
             Date desde, hasta;
-            String dni, nombre, usuario;
+            String dni, nombre, usuario, seriecorrelativo;
             BusquedaPaginada busquedaPaginada = new BusquedaPaginada();
             busquedaPaginada.setBuscar(parametros);
             Venta entidadBuscar = new Venta();
@@ -76,11 +102,12 @@ public class VentaControlador {
             hasta = busquedaPaginada.obtenerFiltroComoDate("hasta");
             dni = busquedaPaginada.obtenerFiltroComoString("dni");
             nombre = busquedaPaginada.obtenerFiltroComoString("nombre");
+            seriecorrelativo = busquedaPaginada.obtenerFiltroComoString("seriecorrelativo");
             usuario = busquedaPaginada.obtenerFiltroComoString("usuario");
             busquedaPaginada.setPaginaActual(pagina);
             busquedaPaginada.setCantidadPorPagina(cantidadPorPagina);
             busquedaPaginada = ventaServicio.busquedaPaginada(entidadBuscar, busquedaPaginada, idPedido, desde, 
-                    hasta, dni, nombre, usuario);
+                    hasta, dni, nombre, usuario, seriecorrelativo);
             return new ResponseEntity<>(busquedaPaginada, HttpStatus.OK);
     }
     

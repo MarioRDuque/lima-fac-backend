@@ -17,7 +17,7 @@ import pe.limatambo.util.BusquedaPaginada;
  */
 public interface VentaServicio extends GenericoServicio<Venta, Long>{
     BusquedaPaginada busquedaPaginada(Venta entidadBuscar, BusquedaPaginada busquedaPaginada, Integer idPedido,
-            Date desde, Date hasta, String dni, String nombre, String usuario);
+            Date desde, Date hasta, String dni, String nombre, String usuario, String seriecorrelativo);
     Venta actualizar(Venta entidad);
     Venta guardar(Venta entidad);
     public Venta obtener(Long id);
