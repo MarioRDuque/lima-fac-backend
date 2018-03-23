@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import pe.limatambo.entidades.Venta;
 import pe.limatambo.excepcion.GeneralException;
 import pe.limatambo.servicio.ReporteServicio;
+import pe.limatambo.servicio.VentaServicio;
 import pe.limatambo.util.LimatamboUtil;
 /**
  *
@@ -28,11 +30,10 @@ import pe.limatambo.util.LimatamboUtil;
 @RestController
 @RequestMapping("/reporte")
 public class ReporteCtrl {
-   
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    
     @Autowired
     private ReporteServicio reporteServicio;
+    @Autowired
+    private VentaServicio ventaServicio;
     
     @RequestMapping(value = "/generar",  method = RequestMethod.POST)
     public @ResponseBody String getReporte(@RequestBody Map<String, Object> parameter, HttpServletResponse response) throws ParseException, GeneralException, Exception {   
@@ -57,4 +58,44 @@ public class ReporteCtrl {
             throw exception;
         }
     }
+    
+    @RequestMapping(value = "/generarsunat",  method = RequestMethod.POST)
+    public @ResponseBody String generarsunat(@RequestBody Map<String, Object> parameter, HttpServletResponse response) throws ParseException, GeneralException, Exception {   
+        String  report = LimatamboUtil.obtenerFiltroComoString(parameter, "report");
+        String codusu = LimatamboUtil.obtenerFiltroComoString(parameter, "codusu");
+        Long idVenta = LimatamboUtil.obtenerFiltroComoLong(parameter, "idVenta");
+        Venta g =  ventaServicio.obtener(idVenta);
+        try {
+            if(codusu.toUpperCase() != null && g!=null){
+                String nombredoc="";
+                String correlativo=LimatamboUtil.completarNumeroConCeros(8, g.getCorrelativo());
+                switch (g.getTipooperacion()) {
+                    case "03":
+                        nombredoc = "BOLETA DE VENTA";
+                        break;
+                    case "01":
+                        nombredoc = "FACTURA DE VENTA";
+                        break;
+                    case "07":
+                        nombredoc = "NOTA DE CREDITO";
+                        break;
+                    case "00":
+                        nombredoc = "NOTA DE PEDIDO";
+                        break;    
+                }
+                Map parametros = new HashMap();
+                parametros.put("report", report);
+                parametros.put("nombredoc", nombredoc);
+                parametros.put("correlativo", correlativo);
+                parametros.put("id", idVenta);
+                parametros.put("p_usuari", codusu.toUpperCase());
+                return reporteServicio.rptDescargar(parametros,response);   
+            }else{
+                return null;
+            } 
+        } catch (Exception exception) {
+            throw exception;
+        }
+    }
+
 }
