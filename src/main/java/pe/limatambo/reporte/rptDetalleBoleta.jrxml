@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2018-01-26T02:31:33 -->
+<!-- 2018-03-23T12:31:59 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="0" uuid="58f2929f-3546-4297-ae06-566d52fb5e24">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NEW_DATAADAPTER.xml"/>
@@ -8,8 +8,8 @@
 	<parameter name="p_usuari" class="java.lang.String"/>
 	<parameter name="codigo" class="java.lang.Integer"/>
 	<queryString>
-		<![CDATA[select ROW_NUMBER() OVER(ORDER BY dp.id DESC) as fila, p.nombre as descripcion, um.descripcion as medida, dp.cantidad as cantidad, dp.cantidad*dp.preciounitario as precio
-from producto p, pedido pe, detallepedido dp, unidadmedida um
+		<![CDATA[select @rownum:=@rownum+1 as fila, p.nombre as descripcion, um.descripcion as medida, dp.cantidad as cantidad, dp.cantidad*dp.preciounitario as precio
+from (SELECT @rownum:=0) r, producto p, pedido pe, detallepedido dp, unidadmedida um
 where p.id=dp.idproducto and pe.id=dp.idpedido
 and dp.idunidad = um.id and pe.id = $P{codigo} and dp.estado = true]]>
 	</queryString>

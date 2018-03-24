@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2018-03-23T12:19:38 -->
+<!-- 2018-03-23T12:40:48 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rptAlertaPolizasAVencer" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7a7e0f6b-85ad-4488-8161-ce256ea7e6ef">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
@@ -142,7 +142,7 @@ where id = $P{id}]]>
 			<textField>
 				<reportElement x="80" y="63" width="400" height="15" uuid="df2fb837-beb1-413b-8292-8242cbe87b91"/>
 				<textElement textAlignment="Center"/>
-				<textFieldExpression><![CDATA[$P{nombredoc} +"  "+ $F{serie} + $P{correlativo}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{nombredoc} +"  "+ $F{serie} +"-"+ $P{correlativo}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="80" y="80" width="400" height="15" uuid="dd8bfa79-a575-45e2-92df-310c6c3046da"/>
@@ -186,13 +186,13 @@ where id = $P{id}]]>
 		</band>
 		<band height="51">
 			<staticText>
-				<reportElement x="380" y="0" width="100" height="15" uuid="33de21d6-7887-4460-ad49-00641f549f2e">
+				<reportElement x="370" y="0" width="110" height="15" uuid="33de21d6-7887-4460-ad49-00641f549f2e">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement>
 					<font fontName="SansSerif" size="8"/>
 				</textElement>
-				<text><![CDATA[OPERACION GRAVADA:]]></text>
+				<text><![CDATA[OPERACION GRAVADA S./:]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="488" y="0" width="67" height="15" uuid="31dfea82-ebf9-48c4-b027-698dfcade11e"/>
@@ -210,16 +210,16 @@ where id = $P{id}]]>
 				<textFieldExpression><![CDATA[$F{importetotal}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="380" y="35" width="100" height="15" uuid="8da0ba31-15d0-4506-959c-e3cc935fc056">
+				<reportElement x="370" y="35" width="110" height="15" uuid="8da0ba31-15d0-4506-959c-e3cc935fc056">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement>
 					<font fontName="SansSerif" size="8"/>
 				</textElement>
-				<text><![CDATA[IMPORTE TOTAL:]]></text>
+				<text><![CDATA[IMPORTE TOTAL S/.:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="380" y="18" width="100" height="15" uuid="d52beeae-67dd-40bc-a9f7-5dcfcee2a99e">
+				<reportElement x="370" y="18" width="110" height="15" uuid="d52beeae-67dd-40bc-a9f7-5dcfcee2a99e">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement>
