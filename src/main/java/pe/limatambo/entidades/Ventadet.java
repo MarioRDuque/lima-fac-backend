@@ -63,7 +63,7 @@ public class Ventadet implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "afectacionigv")
-    private double afectacionigv;
+    private String afectacionigv;
     @Basic(optional = false)
     @NotNull
     @Column(name = "iscitem")
@@ -103,7 +103,7 @@ public class Ventadet implements Serializable {
         this.id = id;
     }
 
-    public Ventadet(Long id, double cantidad, double preciounitario, double descuentototal, double igvitem, double afectacionigv, double iscitem, String tiposistemaisc, double valorunitariosinigv, double preciototal) {
+    public Ventadet(Long id, double cantidad, double preciounitario, double descuentototal, double igvitem, String afectacionigv, double iscitem, String tiposistemaisc, double valorunitariosinigv, double preciototal) {
         this.id = id;
         this.cantidad = cantidad;
         this.preciounitario = preciounitario;

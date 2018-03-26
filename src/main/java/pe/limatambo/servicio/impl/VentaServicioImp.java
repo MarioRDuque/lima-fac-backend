@@ -230,8 +230,8 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 + detalle.get(i).getIdproducto().getNombre() + "|"
                 + detalle.get(i).getValorunitariosinigv()+ "|"
                 + detalle.get(i).getDescuentounitario() + "|"
-                + detalle.get(i).getAfectacionigv() + "|"
                 + detalle.get(i).getIgvitem()+ "|"
+                + detalle.get(i).getAfectacionigv() + "|"
                 + detalle.get(i).getIscitem() + "|"
                 + detalle.get(i).getTiposistemaisc() + "|"
                 + detalle.get(i).getPreciototalsinigv()+ "|"
@@ -255,6 +255,9 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
             case "03":
                 venta.setSerie("B"+p.getValor());
                 break;
+            case "00":
+                venta.setSerie("N"+p.getValor());
+                break;    
         }
     }
 
