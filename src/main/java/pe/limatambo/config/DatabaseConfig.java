@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
-@PropertySource(value = {"file:src/main/resources/application.properties"})
+//@PropertySource(value = {"file:src/main/resources/application.properties"})
 public class DatabaseConfig {
     
     @Autowired

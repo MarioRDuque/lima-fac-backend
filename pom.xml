@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pe.limatambo</groupId>
-    <artifactId>lima-fac-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>lima-fac</artifactId>
+    <version>1</version>
     <packaging>jar</packaging>
 
     <name>lima-fac-backend</name>

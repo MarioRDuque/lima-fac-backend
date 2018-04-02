@@ -14,5 +14,6 @@ That way multiple projects can share the same settings (useful for formatting ru
 Any value defined here will override the pom.xml file value but is only applicable to the current project.
 -->
         <org-netbeans-modules-maven-jaxws._5f_C_5f_Service1>http://10.0.201.18/Autenticacion/Service1.asmx</org-netbeans-modules-maven-jaxws._5f_C_5f_Service1>
+        <org-netbeans-modules-javascript2-requirejs.enabled>true</org-netbeans-modules-javascript2-requirejs.enabled>
     </properties>
 </project-shared-configuration>
