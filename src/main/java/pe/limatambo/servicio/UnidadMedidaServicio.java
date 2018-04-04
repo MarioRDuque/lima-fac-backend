@@ -18,6 +18,5 @@ public interface UnidadMedidaServicio extends GenericoServicio<Unidadmedida, Int
     public BusquedaPaginada busquedaPaginada(Unidadmedida entidadBuscar, BusquedaPaginada busquedaPaginada, String numdoc);
     public List<Unidadmedida> listar();
     public Unidadmedida insertar(Unidadmedida entidad) throws GeneralException;
-
     public Unidadmedida actualizar(Unidadmedida entidad) throws GeneralException;
 }

@@ -6,7 +6,6 @@
 package pe.limatambo.servicio.impl;
 
 import java.util.List;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -72,5 +71,5 @@ public class UnidadMedidaServicioImp extends GenericoServicioImpl<Unidadmedida, 
         busquedaPaginada.setRegistros(unidadMedidaDao.buscarPorCriteriaSinProyecciones(filtro));
         return busquedaPaginada;
     }
-    
+
 }

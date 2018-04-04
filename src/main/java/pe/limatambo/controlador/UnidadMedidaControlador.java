@@ -119,6 +119,25 @@ public class UnidadMedidaControlador {
         }
     }
     
+    @RequestMapping(value="default", method = RequestMethod.GET)
+    public ResponseEntity defecto(HttpServletRequest request) throws GeneralException{
+        Respuesta resp = new Respuesta();
+        try {
+            Unidadmedida unidad = unidadMedidaServicio.obtener(Unidadmedida.class, 195);
+            if (unidad!=null) {
+                resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
+                resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
+                resp.setExtraInfo(unidad);
+            }else{
+                throw new GeneralException(Mensaje.ERROR_CRUD_LISTAR, "No hay datos", loggerControlador);
+            }
+            return new ResponseEntity<>(resp, HttpStatus.OK);
+        } catch (Exception e) {
+            loggerControlador.error(e.getMessage());
+            throw e;
+        }
+    }
+    
     @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity actualizar(HttpServletRequest request, @RequestBody Unidadmedida entidad) throws GeneralException {
         Respuesta resp = new Respuesta();
