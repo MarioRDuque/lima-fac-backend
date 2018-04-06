@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.limatambo.dao.GenericoDao;
 import pe.limatambo.entidades.Producto;
 import pe.limatambo.entidades.Productomedida;
-import pe.limatambo.entidades.ProductomedidaPK;
 import pe.limatambo.excepcion.GeneralException;
 import pe.limatambo.servicio.ProductoServicio;
 import pe.limatambo.util.BusquedaPaginada;

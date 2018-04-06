@@ -43,10 +43,11 @@ public class VentaControlador {
         try {
             Venta g =  ventaServicio.obtener(id);
             if (g != null ) {
+                String tipoOld = g.getTipooperacion();
                 g.setId(null);
                 g.setTipooperacion("07");
                 g = ventaServicio.guardar(g);
-                ventaServicio.generarDocumentoCab(g.getId());
+                ventaServicio.generarDocumentoCabNota(g.getId(), tipoOld);
                 ventaServicio.generarDocumentoDet(g.getId());
                 g = ventaServicio.obtener(id);
                 g.setEstado(false);

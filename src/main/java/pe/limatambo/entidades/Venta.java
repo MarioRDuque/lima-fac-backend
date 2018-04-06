@@ -86,6 +86,9 @@ public class Venta implements Serializable {
     @Size(min = 1, max = 50)
     @Column(name = "nombrecliente")
     private String nombrecliente;
+    @Size(min = 1, max = 250)
+    @Column(name = "descripcion")
+    private String descripcion;
     @JoinColumn(name = "idmoneda", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Moneda idmoneda;

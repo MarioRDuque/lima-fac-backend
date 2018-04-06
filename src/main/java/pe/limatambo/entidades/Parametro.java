@@ -37,7 +37,7 @@ public class Parametro implements Serializable {
     @Size(max = 50)
     @Column(name = "nombre")
     private String nombre;
-    @Size(max = 20)
+    @Size(max = 120)
     @Column(name = "valor")
     private String valor;
     @Column(name = "estado")

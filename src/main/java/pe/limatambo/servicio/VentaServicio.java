@@ -24,4 +24,5 @@ public interface VentaServicio extends GenericoServicio<Venta, Long>{
     public void generarDocumentoCab(Long id) throws IOException;
     public void actualizarEstadoDetalle(Long id) throws GeneralException;
     public void generarDocumentoDet(Long id) throws IOException;
+    public void generarDocumentoCabNota(Long id, String tipoOld) throws IOException;
 }

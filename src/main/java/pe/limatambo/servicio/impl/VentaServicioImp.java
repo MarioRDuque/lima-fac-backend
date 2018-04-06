@@ -187,9 +187,10 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
     @Override
     public void generarDocumentoCab(Long id) throws IOException {
         Venta venta = obtener(id);
+        String extension = ".CAB";
         String correlativo = LimatamboUtil.completarNumeroConCeros(8, venta.getCorrelativo());
         String nombrecab = venta.getRucempresa() + "-" + venta.getTipooperacion() + "-" + venta.getSerie() + "-" + correlativo;
-        File cabecera = new File(URL_DOC_CAB + "" + nombrecab + ".CAB");
+        File cabecera = new File(URL_DOC_CAB + "" + nombrecab + extension);
         FileWriter escribir = new FileWriter(cabecera, false);
         escribir.write(
                 "01" + "|"
@@ -202,6 +203,36 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 + venta.getDescglobal() + "|"
                 + venta.getSumcargos() + "|"
                 + venta.getTotaldesc() + "|"
+                + venta.getTotalsinigv() + "|"
+                + venta.getValoropeinaf() + "|"
+                + venta.getValopeexo() + "|"
+                + venta.getIgv() + "|"
+                + venta.getIsc() + "|"
+                + venta.getSumaotrostrib() + "|"
+                + venta.getImportetotal() + "|"
+        );
+        escribir.close();
+    }
+
+    @Override
+    public void generarDocumentoCabNota(Long id, String tipoOld) throws IOException {
+        Venta venta = obtener(id);
+        String extension = ".NOT";
+        String correlativo = LimatamboUtil.completarNumeroConCeros(8, venta.getCorrelativo());
+        String nombrecab = venta.getRucempresa() + "-" + venta.getTipooperacion() + "-" + venta.getSerie() + "-" + correlativo;
+        File cabecera = new File(URL_DOC_CAB + "" + nombrecab + extension);
+        FileWriter escribir = new FileWriter(cabecera, false);
+        escribir.write(
+                  venta.getFechaemision() + "|"
+                + venta.getTipooperacion() + "|"
+                + venta.getDescripcion() + "|"
+                + tipoOld + "|"
+                + venta.getSerie()+"-"+correlativo+ "|"
+                + venta.getIdtipodocumento().getTipo() + "|"
+                + venta.getDoccliente() + "|"
+                + venta.getNombrecliente() + "|"
+                + venta.getIdmoneda().getSimbolosunat() + "|"
+                + venta.getSumcargos() + "|"
                 + venta.getTotalsinigv() + "|"
                 + venta.getValoropeinaf() + "|"
                 + venta.getValopeexo() + "|"
