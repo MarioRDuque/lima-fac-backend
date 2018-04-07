@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import pe.limatambo.dao.GenericoDao;
+import pe.limatambo.dto.ClienteDTO;
 import pe.limatambo.entidades.Cliente;
 import pe.limatambo.entidades.Tipodocumento;
 import pe.limatambo.excepcion.GeneralException;
@@ -68,6 +69,26 @@ public class ClienteControlador {
         try {
             Integer id = LimatamboUtil.obtenerFiltroComoInteger(parametros, "id");
             Cliente cliente = clienteServicio.obtener(Cliente.class, id);
+            if (cliente!=null) {
+                resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
+                resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
+                resp.setExtraInfo(cliente);
+            }else{
+                throw new GeneralException(Mensaje.ERROR_CRUD_LISTAR, "No hay datos", loggerControlador);
+            }
+            return new ResponseEntity<>(resp, HttpStatus.OK);
+        } catch (Exception e) {
+            loggerControlador.error(e.getMessage());
+            throw e;
+        }
+    }
+    
+    @RequestMapping(value="obtenerv", method = RequestMethod.POST)
+    public ResponseEntity obtenerCliente(HttpServletRequest request, @RequestBody Map<String, Object> parametros) throws GeneralException{
+        Respuesta resp = new Respuesta();
+        try {
+            String id = LimatamboUtil.obtenerFiltroComoString(parametros, "dni");
+            ClienteDTO cliente = clienteServicio.obtenerCliente(id);
             if (cliente!=null) {
                 resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                 resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);

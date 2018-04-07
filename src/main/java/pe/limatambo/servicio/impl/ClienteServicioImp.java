@@ -5,8 +5,6 @@
  */
 package pe.limatambo.servicio.impl;
 
-import com.bea.xml.stream.samples.Parse;
-import java.util.Objects;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.limatambo.dao.GenericoDao;
+import pe.limatambo.dto.ClienteDTO;
 import pe.limatambo.entidades.Cliente;
 import pe.limatambo.entidades.Persona;
 import pe.limatambo.excepcion.GeneralException;
@@ -86,6 +85,20 @@ public class ClienteServicioImp extends GenericoServicioImpl<Cliente, Integer> i
         entidad.setEstado(Boolean.TRUE);
         entidad.setIdpersona(persona);
         return clienteDao.insertar(entidad);
+    }
+
+    @Override
+    public ClienteDTO obtenerCliente(String id) throws GeneralException {
+        Criterio filtro;
+        filtro = Criterio.forClass(Persona.class);
+        filtro.add(Restrictions.eq("numdocumento", id));
+        Persona persona = personaDao.obtenerPorCriteriaSinProyecciones(filtro);
+        ClienteDTO o = new ClienteDTO();
+        if(persona!=null){
+            o.setDocumento(id);
+            o.setNombre(persona.getNombrecompleto());
+        }
+        return o;
     }
     
     @Override

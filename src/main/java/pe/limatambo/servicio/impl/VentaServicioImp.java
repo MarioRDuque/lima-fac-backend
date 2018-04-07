@@ -224,7 +224,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         FileWriter escribir = new FileWriter(cabecera, false);
         escribir.write(
                   venta.getFechaemision() + "|"
-                + venta.getTipooperacion() + "|"
+                + "01" + "|"
                 + venta.getDescripcion() + "|"
                 + tipoOld + "|"
                 + venta.getSerie()+"-"+correlativo+ "|"
