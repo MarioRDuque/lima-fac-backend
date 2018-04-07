@@ -140,6 +140,9 @@ public class Venta implements Serializable {
     @Size(max = 90)
     @Column(name = "usuarioupdate")
     private String usuarioupdate;
+    @Size(max = 3)
+    @Column(name = "anulado")
+    private String anulado;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idventa")
     private List<Ventadet> ventadetList;
 

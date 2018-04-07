@@ -37,17 +37,23 @@ public class VentaControlador {
     @Autowired
     private VentaServicio ventaServicio;
     
-    @RequestMapping(value="notapedido/{id}", method = RequestMethod.GET)
-    public ResponseEntity notapedido(HttpServletRequest request, @PathVariable("id") Long id) throws GeneralException, IOException {
+    @RequestMapping(value="notapedido/{id}/descripcion/{descripcion}", method = RequestMethod.GET)
+    public ResponseEntity notapedido(HttpServletRequest request, @PathVariable("id") Long id, @PathVariable("descripcion") String descripcion) throws GeneralException, IOException {
         Respuesta resp = new Respuesta();
         try {
             Venta g =  ventaServicio.obtener(id);
             if (g != null ) {
-                String tipoOld = g.getTipooperacion();
-                g.setId(null);
-                g.setTipooperacion("07");
-                g = ventaServicio.guardar(g);
-                ventaServicio.generarDocumentoCabNota(g.getId(), tipoOld);
+                g.setDescripcion(descripcion);
+                if(!"07".equals(g.getTipooperacion())){
+                    g.setAnulado(g.getTipooperacion());
+                    g.setTipooperacion("07");
+                    g.setId(null);
+                    g = ventaServicio.guardar(g);
+                }else {
+                    g.setEstado(Boolean.TRUE);
+                    g=ventaServicio.actualizar(g);
+                }
+                ventaServicio.generarDocumentoCabNota(g.getId(), g.getAnulado());
                 ventaServicio.generarDocumentoDet(g.getId());
                 g = ventaServicio.obtener(id);
                 g.setEstado(false);
