@@ -265,8 +265,8 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 + detalle.get(i).getAfectacionigv() + "|"
                 + detalle.get(i).getIscitem() + "|"
                 + detalle.get(i).getTiposistemaisc() + "|"
-                + detalle.get(i).getPreciototalsinigv()+ "|"
                 + detalle.get(i).getPreciototal() + "|" 
+                + detalle.get(i).getPreciototalsinigv()+ "|"
                 + "\n"
             );
         }
