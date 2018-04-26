@@ -260,7 +260,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 + detalle.get(i).getCodproductosunat() + "|"
                 + detalle.get(i).getIdproducto().getNombre() + "|"
                 + detalle.get(i).getValorunitariosinigv()+ "|"
-                + detalle.get(i).getDescuentounitario() + "|"
+                + detalle.get(i).getDescuentototal()+ "|"
                 + detalle.get(i).getIgvitem()+ "|"
                 + detalle.get(i).getAfectacionigv() + "|"
                 + detalle.get(i).getIscitem() + "|"
