@@ -123,7 +123,7 @@ public class UnidadMedidaControlador {
     public ResponseEntity defecto(HttpServletRequest request) throws GeneralException{
         Respuesta resp = new Respuesta();
         try {
-            Unidadmedida unidad = unidadMedidaServicio.obtener(Unidadmedida.class, 195);
+            Unidadmedida unidad = unidadMedidaServicio.obtener(Unidadmedida.class, 1);
             if (unidad!=null) {
                 resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                 resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
