@@ -64,6 +64,15 @@ public class Ventadet implements Serializable {
     @NotNull
     @Column(name = "afectacionigv")
     private String afectacionigv;
+    @Basic(optional = true)
+    @Column(name = "imeiequipo")
+    private String imeiequipo;
+    @Basic(optional = true)
+    @Column(name = "imeichip")
+    private String imeichip;
+    @Basic(optional = true)
+    @Column(name = "numeroChip")
+    private String numerochip;
     @Basic(optional = false)
     @NotNull
     @Column(name = "iscitem")
