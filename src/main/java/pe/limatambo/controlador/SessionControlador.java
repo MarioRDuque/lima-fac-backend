@@ -40,6 +40,7 @@ public class SessionControlador {
             sessionItem.setUsuarioId(usuario.getUserId());
             sessionItem.setNombre(usuario.getNombre());
             sessionItem.setTipoUsuario(usuario.getTipousuario().getId());
+            sessionItem.setTipoNombreUsuario(usuario.getTipousuario().getNombre());
             sessionItem.setMenus(menuServicio.listarPorTipoDeUsuario(usuario.getTipousuario().getId()));
             resp.setEstadoOperacion(EstadoOperacionEnum.EXITO.getValor());
             resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
