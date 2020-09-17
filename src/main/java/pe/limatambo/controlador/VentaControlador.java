@@ -78,8 +78,8 @@ public class VentaControlador {
                 Venta g =  ventaServicio.guardar(entidad);
                 if (g != null ) {
                     if(!"00".equals(g.getTipooperacion())){
-                        ventaServicio.generarDocumentoCab(g.getId());
-                        ventaServicio.generarDocumentoDet(g.getId());
+//                        ventaServicio.generarDocumentoCab(g.getId());
+//                        ventaServicio.generarDocumentoDet(g.getId());
                     }
                     resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                     resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);

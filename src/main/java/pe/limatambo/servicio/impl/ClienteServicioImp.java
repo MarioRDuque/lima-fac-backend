@@ -118,7 +118,6 @@ public class ClienteServicioImp extends GenericoServicioImpl<Cliente, Integer> i
         entidad.getIdpersona().setNombrecompleto(entidad.getIdpersona().getNombre() + " " + entidad.getIdpersona().getApellidos());
         entidad.getIdpersona().setEstado(Boolean.TRUE);
         personaDao.actualizar(entidad.getIdpersona());
-        entidad.setEstado(Boolean.TRUE);
         entidad.setIdpersona(entidad.getIdpersona());
         return clienteDao.actualizar(entidad);
     }
