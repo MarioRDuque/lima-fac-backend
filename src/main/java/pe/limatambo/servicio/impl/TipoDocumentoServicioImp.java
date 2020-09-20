@@ -40,7 +40,7 @@ public class TipoDocumentoServicioImp extends GenericoServicioImpl<Tipodocumento
     public BusquedaPaginada busquedaPaginada(Tipodocumento entidadBuscar, BusquedaPaginada busquedaPaginada, String numdoc) {
         Criterio filtro;
         filtro = Criterio.forClass(Tipodocumento.class);
-        filtro.add(Restrictions.eq("estado", Boolean.TRUE));
+        //filtro.add(Restrictions.eq("estado", Boolean.TRUE));
         if (numdoc!= null && !numdoc.equals("")) {
             filtro.add(Restrictions.ilike("abreviatura", '%'+numdoc+'%'));
         }
