@@ -98,9 +98,8 @@ public class Compradet implements Serializable {
     @NotNull
     @Column(name = "valorunitariosinigv")
     private double valorunitariosinigv;
-    @JoinColumn(name = "idcompra", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Compra idcompra;
+    @Column(name = "idcompra", nullable = false)
+    private Long idcompra;
     @JoinColumn(name = "idproducto", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Producto idproducto;
