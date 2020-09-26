@@ -127,10 +127,10 @@ public class VentaControlador {
             try {
                 Venta a = ventaServicio.actualizar(entidad);
                 if (a != null ) {
-                    if(!"00".equals(a.getTipooperacion())){
-                        ventaServicio.generarDocumentoCab(a.getId());
-                        ventaServicio.generarDocumentoDet(a.getId());
-                    }
+//                    if(!"00".equals(a.getTipooperacion())){
+//                        ventaServicio.generarDocumentoCab(a.getId());
+//                        ventaServicio.generarDocumentoDet(a.getId());
+//                    }
                     resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                     resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                     resp.setExtraInfo(a.getId());

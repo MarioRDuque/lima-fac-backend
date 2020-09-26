@@ -5,7 +5,10 @@
  */
 package pe.limatambo.servicio.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -23,11 +26,11 @@ import pe.limatambo.excepcion.GeneralException;
 import pe.limatambo.servicio.ProductoServicio;
 import pe.limatambo.util.BusquedaPaginada;
 import pe.limatambo.util.Criterio;
+
 /**
  *
  * @author dev-out-03
  */
-
 @Service
 @Transactional
 public class ProductoServicioImp extends GenericoServicioImpl<Producto, Integer> implements ProductoServicio {
@@ -51,10 +54,10 @@ public class ProductoServicioImp extends GenericoServicioImpl<Producto, Integer>
         Criterio filtro;
         filtro = Criterio.forClass(Producto.class);
         filtro.add(Restrictions.eq("estado", Boolean.TRUE));
-        if (idProducto!= null) {
-            filtro.add(Restrictions.ilike("nombre", '%'+idProducto+'%'));
+        if (idProducto != null) {
+            filtro.add(Restrictions.ilike("nombre", '%' + idProducto + '%'));
         }
-        if (idCategoria>0) {
+        if (idCategoria > 0) {
             filtro.add(Restrictions.eq("idcategoria.id", idCategoria));
         }
         busquedaPaginada.setTotalRegistros(productoDao.cantidadPorCriteria(filtro, "id"));
@@ -78,20 +81,20 @@ public class ProductoServicioImp extends GenericoServicioImpl<Producto, Integer>
         p.setProductomedidaList(pm);
         return p;
     }
-    
+
     @Override
-    public Producto insertar(Producto entidad) throws GeneralException{
+    public Producto insertar(Producto entidad) throws GeneralException {
         entidad.setEstado(Boolean.TRUE);
         List<Productomedida> productoMedidas = entidad.getProductomedidaList();
         entidad.setProductomedidaList(null);
         entidad = productoDao.insertar(entidad);
-        if(productoMedidas != null){
+        if (productoMedidas != null) {
             for (Productomedida pm : productoMedidas) {
                 pm.setIdproducto(entidad.getId());
                 productoMedidaDao.insertar(pm);
             }
         }
-        Categoria c = categoriaDao.obtener(Categoria.class, entidad.getIdcategoria()!=null ? entidad.getIdcategoria().getId() : 0);
+        Categoria c = categoriaDao.obtener(Categoria.class, entidad.getIdcategoria() != null ? entidad.getIdcategoria().getId() : 0);
         entidad.setIdcategoria(c);
         return entidad;
     }
@@ -99,7 +102,7 @@ public class ProductoServicioImp extends GenericoServicioImpl<Producto, Integer>
     @Override
     public Producto actualizar(Producto producto) throws GeneralException {
         List<Productomedida> productoMedidas = producto.getProductomedidaList();
-        if(productoMedidas != null){
+        if (productoMedidas != null) {
             productoMedidas.stream().forEach((pm) -> {
                 productoMedidaDao.actualizar(pm);
             });
@@ -114,5 +117,32 @@ public class ProductoServicioImp extends GenericoServicioImpl<Producto, Integer>
         filtro.add(Restrictions.eq("idproducto", id));
         return productoMedidaDao.listarFiltroDistinct(filtro);
     }
-    
+
+    @Override
+    public Map<String, Object> exportarReporteProducto(List<Producto> productos, String usuario) throws Exception {
+        try {
+            List<String> listaCabecera = new ArrayList();
+            List<String> listaCuerpo = new ArrayList();
+            Map<String, Object> respuesta = new HashMap<>();
+            listaCabecera.add("SListado de productos");
+            listaCabecera.add("S");
+            listaCuerpo.add("SCódigo del producto" + "¬" + "SNombre de producto" + "¬" + "SCategoria" + "¬" + "SStock" + "¬" + "SEstado");
+            for (Producto producto : productos) {
+                listaCuerpo.add(
+                        (producto.getId() == null ? "B" : "S" + producto.getId()) + "¬"
+                        + (producto.getNombre() == null ? "B" : "S" + producto.getNombre()) + "¬"
+                        + (producto.getIdcategoria().getDescripcion() == null ? "B" : "S" + producto.getIdcategoria().getDescripcion()) + "¬"
+                        + (producto.getStockmin() == null ? "B" : "D" + producto.getStockmin()) + "¬"
+                        + (producto.getEstado() == null ? "SHABILITADO" : "SDESHABILITADO") + "¬"
+                );
+            }
+            respuesta.put("listaCabecera", listaCabecera);
+            respuesta.put("listaCuerpo", listaCuerpo);
+
+            return respuesta;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 }

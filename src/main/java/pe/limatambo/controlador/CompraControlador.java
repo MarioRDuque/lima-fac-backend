@@ -127,10 +127,10 @@ public class CompraControlador {
             try {
                 Compra a = compraServicio.actualizar(entidad);
                 if (a != null ) {
-                    if(!"00".equals(a.getTipooperacion())){
-                        compraServicio.generarDocumentoCab(a.getId());
-                        compraServicio.generarDocumentoDet(a.getId());
-                    }
+//                    if(!"00".equals(a.getTipooperacion())){
+//                        compraServicio.generarDocumentoCab(a.getId());
+//                        compraServicio.generarDocumentoDet(a.getId());
+//                    }
                     resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                     resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                     resp.setExtraInfo(a.getId());
