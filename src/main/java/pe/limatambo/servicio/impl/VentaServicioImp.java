@@ -8,8 +8,12 @@ package pe.limatambo.servicio.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -55,6 +59,8 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
     @Autowired
     private GenericoDao<Productomedida, Integer> productomedidaDao;
     @Autowired
+    private GenericoDao<Producto, Integer> productoDao;
+    @Autowired
     private SessionFactory sessionFactory;
     @Value("${url.doc.cab}")
     private String URL_DOC_CAB;
@@ -66,7 +72,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
     }
 
     @Override
-    public Venta guardar(Venta venta){
+    public Venta guardar(Venta venta) {
         if (venta != null) {
             List<Ventadet> ventadelList = venta.getVentadetList();
             venta.setVentadetList(null);
@@ -77,6 +83,15 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
             obtenerRuc(venta);
             venta = ventaDao.insertar(venta);// cabecera
             for (Ventadet detalle : ventadelList) {
+                Producto p = productoDao.obtener(Producto.class, detalle.getIdproducto().getId());
+                if (p.getStockmin() == null) {
+                    p.setStockmin(BigDecimal.ZERO);
+                }
+                p.setStockmin(p.getStockmin().subtract(new BigDecimal(detalle.getCantidad())));
+                if (p.getStockmin().compareTo(BigDecimal.ZERO) < 0) {
+                    throw new GeneralException("No hay stock para el producto: " + p.getNombre(), "No hay stock para el producto: " + p.getNombre(), loggerServicio);
+                }
+                productoDao.actualizar(p);
                 detalle.setIdventa(venta.getId());
                 ventaDetalleDao.insertar(detalle);// detalle
             }
@@ -116,7 +131,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         if (idVenta != null && idVenta > 0) {
             filtro.add(Restrictions.eq("id", idVenta));
         }
-        if(seriecorrelativo!=null){
+        if (seriecorrelativo != null) {
             String serie;
             Integer correlativo;
             int inicio = seriecorrelativo.indexOf("-");
@@ -124,7 +139,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 throw new GeneralException("Formato erroneo de busqueda", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
             }
             serie = seriecorrelativo.substring(0, inicio);
-            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio+1));
+            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio + 1));
             filtro.add(Restrictions.eq("serie", serie));
             filtro.add(Restrictions.eq("correlativo", correlativo));
         }
@@ -150,6 +165,7 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
                 .add(Projections.property("correlativo"), "correlativo")
                 .add(Projections.property("fechaemision"), "fechaemision")
                 .add(Projections.property("doccliente"), "doccliente")
+                .add(Projections.property("importetotal"), "importetotal")
                 .add(Projections.property("nombrecliente"), "nombrecliente")
                 .add(Projections.property("usuariosave"), "usuariosave"));
         filtro.calcularDatosParaPaginacion(busquedaPaginada);
@@ -161,7 +177,16 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
     @Override
     public Venta actualizar(Venta venta) {
         if (venta.getId() > 0) {
-            venta = ventaDao.actualizar(venta);
+            List<Ventadet> ventadelList = venta.getVentadetList();
+            for (Ventadet detalle : ventadelList) {
+                Producto p = productoDao.obtener(Producto.class, detalle.getIdproducto().getId());
+                if (p.getStockmin() == null) {
+                    p.setStockmin(BigDecimal.ZERO);
+                }
+                p.setStockmin(p.getStockmin().add(new BigDecimal(detalle.getCantidad())));
+                productoDao.actualizar(p);
+            }
+            ventaDao.eliminar(venta);
         } else {
             throw new GeneralException("Venta nulo", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
         }
@@ -223,11 +248,11 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         File cabecera = new File(URL_DOC_CAB + "" + nombrecab + extension);
         FileWriter escribir = new FileWriter(cabecera, false);
         escribir.write(
-                  venta.getFechaemision() + "|"
+                venta.getFechaemision() + "|"
                 + "01" + "|"
                 + venta.getDescripcion() + "|"
                 + tipoOld + "|"
-                + venta.getSerie()+"-"+correlativo+ "|"
+                + venta.getSerie() + "-" + correlativo + "|"
                 + venta.getIdtipodocumento().getTipo() + "|"
                 + venta.getDoccliente() + "|"
                 + venta.getNombrecliente() + "|"
@@ -254,20 +279,20 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         FileWriter escribir = new FileWriter(detalle_det, false);
         for (int i = 0; i < detalle.size(); i++) {
             escribir.write(
-                "EA" + "|"
-                + detalle.get(i).getCantidad() + "|"
-                + detalle.get(i).getIdproducto().getId() + "|"
-                + detalle.get(i).getCodproductosunat() + "|"
-                + detalle.get(i).getIdproducto().getNombre() + "|"
-                + detalle.get(i).getValorunitariosinigv()+ "|"
-                + detalle.get(i).getDescuentototal()+ "|"
-                + detalle.get(i).getIgvitem()+ "|"
-                + detalle.get(i).getAfectacionigv() + "|"
-                + detalle.get(i).getIscitem() + "|"
-                + detalle.get(i).getTiposistemaisc() + "|"
-                + detalle.get(i).getPreciototal() + "|" 
-                + detalle.get(i).getPreciototalsinigv()+ "|"
-                + "\n"
+                    "EA" + "|"
+                    + detalle.get(i).getCantidad() + "|"
+                    + detalle.get(i).getIdproducto().getId() + "|"
+                    + detalle.get(i).getCodproductosunat() + "|"
+                    + detalle.get(i).getIdproducto().getNombre() + "|"
+                    + detalle.get(i).getValorunitariosinigv() + "|"
+                    + detalle.get(i).getDescuentototal() + "|"
+                    + detalle.get(i).getIgvitem() + "|"
+                    + detalle.get(i).getAfectacionigv() + "|"
+                    + detalle.get(i).getIscitem() + "|"
+                    + detalle.get(i).getTiposistemaisc() + "|"
+                    + detalle.get(i).getPreciototal() + "|"
+                    + detalle.get(i).getPreciototalsinigv() + "|"
+                    + "\n"
             );
         }
         escribir.close();
@@ -279,16 +304,16 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         filtro.add(Restrictions.eq("estado", Boolean.TRUE));
         filtro.add(Restrictions.eq("nombre", "SERIE"));
         Parametro p = parametroDao.obtenerPorCriteriaSinProyecciones(filtro);
-        switch(venta.getTipooperacion()){
+        switch (venta.getTipooperacion()) {
             case "01":
-                venta.setSerie("F"+p.getValor());
+                venta.setSerie("F" + p.getValor());
                 break;
             case "03":
-                venta.setSerie("B"+p.getValor());
+                venta.setSerie("B" + p.getValor());
                 break;
             case "00":
-                venta.setSerie("N"+p.getValor());
-                break;    
+                venta.setSerie("N" + p.getValor());
+                break;
         }
     }
 
@@ -299,6 +324,103 @@ public class VentaServicioImp extends GenericoServicioImpl<Venta, Long> implemen
         filtro.add(Restrictions.eq("nombre", "RUC"));
         Parametro p = parametroDao.obtenerPorCriteriaSinProyecciones(filtro);
         venta.setRucempresa(p.getValor());
+    }
+
+    @Override
+    public Map<String, Object> exportarVentas(Date desde, Date hasta, String seriecorrelativo, String usuario) throws Exception {
+        List<String> listaCabecera = new ArrayList();
+        List<String> listaCuerpo = new ArrayList();
+        Map<String, Object> respuesta = new HashMap<>();
+        try {
+            listaCabecera.add("SListado de ventas");
+            if (desde != null) {
+                listaCabecera.add("SDesde: " + desde);
+            }
+            if (hasta != null) {
+                listaCabecera.add("SHasta: " + hasta);
+            }
+            if (seriecorrelativo != null && !seriecorrelativo.isEmpty()) {
+                listaCabecera.add("SCodigo: " + seriecorrelativo);
+            }
+            listaCabecera.add("SUsuario: " + usuario);
+            listaCabecera.add("S");
+            listaCuerpo.add("SCódigo de la venta" + "¬" + "SCliente" + "¬" + "SFecha Venta" + "¬" + "STotal" + "¬" + "S-" + "¬" + "SCodigo Producto" + "¬" + "SProducto" + "¬" + "SCantidad" + "¬" + "SPrecio" + "¬" + "SParcial");
+            List<Venta> ventas = listarVentas(desde, hasta, seriecorrelativo, usuario);
+            for (Venta venta : ventas) {
+                listaCuerpo.add(
+                        (venta.getSerie() == null ? "B" : "S" + venta.getSerie() + "-" + venta.getCorrelativo()) + "¬"
+                        + (venta.getDoccliente() == null ? "B" : "S" + venta.getDoccliente() + " " + venta.getNombrecliente()) + "¬"
+                        + (venta.getFechaemision() == null ? "B" : "S" + venta.getFechaemision()) + "¬"
+                        + (venta.getImportetotal() < 0 ? "D0" : "D" + venta.getImportetotal()) + "¬"
+                        + "B" + "¬"
+                );
+                List<Ventadet> ventadelList = obtenerVigentes(venta.getId());
+                for (Ventadet detalle : ventadelList) {
+                    listaCuerpo.add(
+                            "B" + "¬"
+                            + "B" + "¬"
+                            + "B" + "¬"
+                            + "B" + "¬"
+                            + "B" + "¬"
+                            + (detalle.getIdproducto().getId() == null ? "B" : "S" + detalle.getIdproducto().getId()) + "¬"
+                            + (detalle.getIdproducto().getNombre() == null ? "B" : "S" + detalle.getIdproducto().getNombre()) + "¬"
+                            + "D" + (detalle.getCantidad()) + "¬"
+                            + "D" + (detalle.getPreciototal()) + "¬"
+                            + "D" + (detalle.getPreciototal()) + "¬"
+                    );
+                }
+                listaCuerpo.add("B" + "¬");
+                listaCuerpo.add("B" + "¬");
+            }
+            respuesta.put("listaCabecera", listaCabecera);
+            respuesta.put("listaCuerpo", listaCuerpo);
+
+            return respuesta;
+        } catch (Exception e) {
+            if (e != null && e.getMessage() != null) {
+                listaCuerpo.add("S" + e.getMessage() + "¬");
+            } else {
+                listaCuerpo.add("SNo se encontraron resultados" + "¬");
+            }
+            respuesta.put("listaCabecera", listaCabecera);
+            respuesta.put("listaCuerpo", listaCuerpo);
+            return respuesta;
+        }
+    }
+
+    public List<Venta> listarVentas(Date desde, Date hasta, String seriecorrelativo, String usuario) {
+        Criterio filtro;
+        filtro = Criterio.forClass(Venta.class);
+        if (seriecorrelativo != null && !seriecorrelativo.isEmpty()) {
+            String serie;
+            Integer correlativo;
+            int inicio = seriecorrelativo.indexOf("-");
+            if (inicio <= 0) {
+                throw new GeneralException("Formato erroneo de busqueda", "Formato erroneo de busqueda", loggerServicio);
+            }
+            serie = seriecorrelativo.substring(0, inicio);
+            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio + 1));
+            filtro.add(Restrictions.eq("serie", serie));
+            filtro.add(Restrictions.eq("correlativo", correlativo));
+        }
+        if (LimatamboUtil.sonNoNulos(desde, hasta)) {
+            if (desde.before(hasta)) {
+                filtro.add(Restrictions.between("fechaemision", desde, hasta));
+            } else {
+                throw new GeneralException("Las fechas son insconsistentes", "Las fechas son insconsistentes", loggerServicio);
+            }
+        }
+        filtro.setProjection(Projections.projectionList()
+                .add(Projections.property("id"), "id")
+                .add(Projections.property("serie"), "serie")
+                .add(Projections.property("correlativo"), "correlativo")
+                .add(Projections.property("fechaemision"), "fechaemision")
+                .add(Projections.property("doccliente"), "doccliente")
+                .add(Projections.property("importetotal"), "importetotal")
+                .add(Projections.property("nombrecliente"), "nombrecliente")
+                .add(Projections.property("usuariosave"), "usuariosave"));
+        filtro.addOrder(Order.desc("id"));
+        return ventaDao.proyeccionPorCriteria(filtro, Venta.class);
     }
 
 }

@@ -7,8 +7,10 @@ package pe.limatambo.controlador;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,40 +20,46 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import pe.limatambo.entidades.Venta;
 import pe.limatambo.excepcion.GeneralException;
+import pe.limatambo.servicio.ReporteServicio;
 import pe.limatambo.servicio.VentaServicio;
 import pe.limatambo.util.BusquedaPaginada;
 import pe.limatambo.util.LimatamboUtil;
 import pe.limatambo.util.Mensaje;
 import pe.limatambo.util.Respuesta;
+import pe.limatambo.util.UtilsJSON;
+
 /**
  * @author dev-out-03
  */
 @RestController
 @RequestMapping("/venta")
 public class VentaControlador {
-    
+
     private final Logger loggerControlador = LoggerFactory.getLogger(getClass());
     @Autowired
     private VentaServicio ventaServicio;
-    
-    @RequestMapping(value="notapedido/{id}/descripcion/{descripcion}", method = RequestMethod.GET)
+    @Autowired
+    private ReporteServicio reporteServicio;
+
+    @RequestMapping(value = "notapedido/{id}/descripcion/{descripcion}", method = RequestMethod.GET)
     public ResponseEntity notapedido(HttpServletRequest request, @PathVariable("id") Long id, @PathVariable("descripcion") String descripcion) throws GeneralException, IOException {
         Respuesta resp = new Respuesta();
         try {
-            Venta g =  ventaServicio.obtener(id);
-            if (g != null ) {
+            Venta g = ventaServicio.obtener(id);
+            if (g != null) {
                 g.setDescripcion(descripcion);
-                if(!"07".equals(g.getTipooperacion())){
+                if (!"07".equals(g.getTipooperacion())) {
                     g.setAnulado(g.getTipooperacion());
                     g.setTipooperacion("07");
                     g.setId(null);
                     g = ventaServicio.guardar(g);
-                }else {
+                } else {
                     g.setEstado(Boolean.TRUE);
-                    g=ventaServicio.actualizar(g);
+                    g = ventaServicio.actualizar(g);
                 }
                 ventaServicio.generarDocumentoCabNota(g.getId(), g.getAnulado());
                 ventaServicio.generarDocumentoDet(g.getId());
@@ -61,7 +69,7 @@ public class VentaControlador {
                 resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                 resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                 resp.setExtraInfo(g.getId());
-            }else{
+            } else {
                 throw new GeneralException(Mensaje.ERROR_CRUD_GUARDAR, "Guardar retorno nulo", loggerControlador);
             }
         } catch (Exception e) {
@@ -69,64 +77,85 @@ public class VentaControlador {
         }
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
-    
+
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity crear(HttpServletRequest request, @RequestBody Venta entidad) throws GeneralException, IOException {
         Respuesta resp = new Respuesta();
-        if(entidad != null){
+        if (entidad != null) {
             try {
-                Venta g =  ventaServicio.guardar(entidad);
-                if (g != null ) {
-                    if(!"00".equals(g.getTipooperacion())){
+                Venta g = ventaServicio.guardar(entidad);
+                if (g != null) {
+                    if (!"00".equals(g.getTipooperacion())) {
 //                        ventaServicio.generarDocumentoCab(g.getId());
 //                        ventaServicio.generarDocumentoDet(g.getId());
                     }
                     resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                     resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                     resp.setExtraInfo(g.getId());
-                }else{
+                } else {
                     throw new GeneralException(Mensaje.ERROR_CRUD_GUARDAR, "Guardar retorno nulo", loggerControlador);
                 }
             } catch (Exception e) {
                 throw e;
             }
-        }else{
+        } else {
             resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.ERROR.getValor());
         }
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = "pagina/{pagina}/cantidadPorPagina/{cantidadPorPagina}", method = RequestMethod.POST)
-    public ResponseEntity<BusquedaPaginada> busquedaPaginada(HttpServletRequest request, @PathVariable("pagina") Long pagina, 
-                                                             @PathVariable("cantidadPorPagina") Long cantidadPorPagina, 
-                                                             @RequestBody Map<String, Object> parametros){
-            Integer idPedido;
-            Date desde, hasta;
-            String dni, nombre, usuario, seriecorrelativo;
-            BusquedaPaginada busquedaPaginada = new BusquedaPaginada();
-            busquedaPaginada.setBuscar(parametros);
-            Venta entidadBuscar = new Venta();
-            idPedido = busquedaPaginada.obtenerFiltroComoInteger("idPedido");
-            desde = busquedaPaginada.obtenerFiltroComoDate("desde");
-            hasta = busquedaPaginada.obtenerFiltroComoDate("hasta");
-            dni = busquedaPaginada.obtenerFiltroComoString("dni");
-            nombre = busquedaPaginada.obtenerFiltroComoString("nombre");
-            seriecorrelativo = busquedaPaginada.obtenerFiltroComoString("seriecorrelativo");
-            usuario = busquedaPaginada.obtenerFiltroComoString("usuario");
-            busquedaPaginada.setPaginaActual(pagina);
-            busquedaPaginada.setCantidadPorPagina(cantidadPorPagina);
-            busquedaPaginada = ventaServicio.busquedaPaginada(entidadBuscar, busquedaPaginada, idPedido, desde, 
-                    hasta, dni, nombre, usuario, seriecorrelativo);
-            return new ResponseEntity<>(busquedaPaginada, HttpStatus.OK);
+    public ResponseEntity<BusquedaPaginada> busquedaPaginada(HttpServletRequest request, @PathVariable("pagina") Long pagina,
+            @PathVariable("cantidadPorPagina") Long cantidadPorPagina,
+            @RequestBody Map<String, Object> parametros) {
+        Integer idPedido;
+        Date desde, hasta;
+        String dni, nombre, usuario, seriecorrelativo;
+        BusquedaPaginada busquedaPaginada = new BusquedaPaginada();
+        busquedaPaginada.setBuscar(parametros);
+        Venta entidadBuscar = new Venta();
+        idPedido = busquedaPaginada.obtenerFiltroComoInteger("idPedido");
+        desde = busquedaPaginada.obtenerFiltroComoDate("desde");
+        hasta = busquedaPaginada.obtenerFiltroComoDate("hasta");
+        dni = busquedaPaginada.obtenerFiltroComoString("dni");
+        nombre = busquedaPaginada.obtenerFiltroComoString("nombre");
+        seriecorrelativo = busquedaPaginada.obtenerFiltroComoString("seriecorrelativo");
+        usuario = busquedaPaginada.obtenerFiltroComoString("usuario");
+        busquedaPaginada.setPaginaActual(pagina);
+        busquedaPaginada.setCantidadPorPagina(cantidadPorPagina);
+        busquedaPaginada = ventaServicio.busquedaPaginada(entidadBuscar, busquedaPaginada, idPedido, desde,
+                hasta, dni, nombre, usuario, seriecorrelativo);
+        return new ResponseEntity<>(busquedaPaginada, HttpStatus.OK);
     }
     
+    @RequestMapping("/exportarVentas")
+    public @ResponseBody
+    String exportarVentas(HttpServletResponse response, @RequestBody String json) throws Exception {
+        Map<String, Object> map = UtilsJSON.jsonToMap(json);
+        Map<String, Object> respuesta;
+        Date desde = UtilsJSON.jsonToObjeto(Date.class, map.get("desde"));
+        Date hasta = UtilsJSON.jsonToObjeto(Date.class, map.get("hasta"));
+        String seriecorrelativo = UtilsJSON.jsonToObjeto(String.class, map.get("seriecorrelativo"));
+        String usuario = UtilsJSON.jsonToObjeto(String.class, map.get("usuario"));
+        try {
+            respuesta = ventaServicio.exportarVentas(desde, hasta, seriecorrelativo, usuario);
+            List<String> listaCabecera = UtilsJSON.jsonToList(String.class, respuesta.get("listaCabecera"));
+            List<String> listaCuerpo = UtilsJSON.jsonToList(String.class, respuesta.get("listaCuerpo"));
+            reporteServicio.generarReporteXLSAngular(listaCabecera, listaCuerpo, response);
+        } catch (Exception e) {
+            loggerControlador.error(e.getMessage());
+            throw e;
+        }
+        return null;
+    }
+
     @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity actualizar(HttpServletRequest request, @RequestBody Venta entidad) throws GeneralException, IOException {
         Respuesta resp = new Respuesta();
-        if(entidad != null){
+        if (entidad != null) {
             try {
                 Venta a = ventaServicio.actualizar(entidad);
-                if (a != null ) {
+                if (a != null) {
 //                    if(!"00".equals(a.getTipooperacion())){
 //                        ventaServicio.generarDocumentoCab(a.getId());
 //                        ventaServicio.generarDocumentoDet(a.getId());
@@ -140,19 +169,19 @@ public class VentaControlador {
             } catch (Exception e) {
                 throw e;
             }
-        }else{
+        } else {
             resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.ERROR.getValor());
         }
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = "obtenerEntidad", method = RequestMethod.POST)
     public ResponseEntity obtenerEntidad(HttpServletRequest request, @RequestBody Map<String, Object> parametros) throws GeneralException {
         Respuesta resp = new Respuesta();
         try {
             Long id = LimatamboUtil.obtenerFiltroComoLong(parametros, "id");
             Venta pedidoBuscado = ventaServicio.obtener(id);
-            if (pedidoBuscado!= null && pedidoBuscado.getId()>0) {
+            if (pedidoBuscado != null && pedidoBuscado.getId() > 0) {
                 resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                 resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                 resp.setExtraInfo(pedidoBuscado);
@@ -164,7 +193,7 @@ public class VentaControlador {
             throw e;
         }
     }
-    
+
     @RequestMapping(value = "eliminardetalle/{id}", method = RequestMethod.GET)
     public ResponseEntity eliminardetalle(HttpServletRequest request, @PathVariable("id") Long id) throws GeneralException {
         Respuesta resp = new Respuesta();
@@ -178,15 +207,15 @@ public class VentaControlador {
             throw e;
         }
     }
-    
-    @RequestMapping(value = "eliminar/{id}", method = RequestMethod.GET)
-    public ResponseEntity eliminar(HttpServletRequest request, @PathVariable("id") Long id) throws GeneralException {
+
+    @RequestMapping(value = "eliminar", method = RequestMethod.POST)
+    public ResponseEntity eliminar(HttpServletRequest request, @RequestBody Map<String, Object> parametros) throws GeneralException {
         Respuesta resp = new Respuesta();
         try {
+            Long id = LimatamboUtil.obtenerFiltroComoLong(parametros, "id");
             Venta pedido = ventaServicio.obtener(id);
-            pedido.setEstado(Boolean.FALSE);
             pedido = ventaServicio.actualizar(pedido);
-            if (pedido!= null && pedido.getId()>0) {
+            if (pedido != null && pedido.getId() > 0) {
                 resp.setEstadoOperacion(Respuesta.EstadoOperacionEnum.EXITO.getValor());
                 resp.setOperacionMensaje(Mensaje.OPERACION_CORRECTA);
                 resp.setExtraInfo(pedido);
@@ -198,5 +227,5 @@ public class VentaControlador {
             throw e;
         }
     }
-    
+
 }

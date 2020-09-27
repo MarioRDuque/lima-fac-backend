@@ -8,7 +8,11 @@ package pe.limatambo.servicio.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.TimeZone;
 import org.hibernate.Query;
@@ -56,6 +60,8 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
     private GenericoDao<Productomedida, Integer> productomedidaDao;
     @Autowired
     private SessionFactory sessionFactory;
+    @Autowired
+    private GenericoDao<Producto, Integer> productoDao;
     @Value("${url.doc.cab}")
     private String URL_DOC_CAB;
     @Value("${url.doc.det}")
@@ -66,7 +72,7 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
     }
 
     @Override
-    public Compra guardar(Compra compra){
+    public Compra guardar(Compra compra) {
         if (compra != null) {
             List<Compradet> compradelList = compra.getCompradetList();
             compra.setCompradetList(null);
@@ -77,6 +83,12 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
             obtenerRuc(compra);
             compra = compraDao.insertar(compra);// cabecera
             for (Compradet detalle : compradelList) {
+                Producto p = productoDao.obtener(Producto.class, detalle.getIdproducto().getId());
+                if (p.getStockmin() == null) {
+                    p.setStockmin(BigDecimal.ZERO);
+                }
+                p.setStockmin(p.getStockmin().add(new BigDecimal(detalle.getCantidad())));
+                productoDao.actualizar(p);
                 detalle.setIdcompra(compra.getId());
                 compraDetalleDao.insertar(detalle);// detalle
             }
@@ -116,7 +128,7 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
         if (idCompra != null && idCompra > 0) {
             filtro.add(Restrictions.eq("id", idCompra));
         }
-        if(seriecorrelativo!=null){
+        if (seriecorrelativo != null) {
             String serie;
             Integer correlativo;
             int inicio = seriecorrelativo.indexOf("-");
@@ -124,7 +136,7 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
                 throw new GeneralException("Formato erroneo de busqueda", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
             }
             serie = seriecorrelativo.substring(0, inicio);
-            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio+1));
+            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio + 1));
             filtro.add(Restrictions.eq("serie", serie));
             filtro.add(Restrictions.eq("correlativo", correlativo));
         }
@@ -161,7 +173,19 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
     @Override
     public Compra actualizar(Compra compra) {
         if (compra.getId() > 0) {
-            compra = compraDao.actualizar(compra);
+            List<Compradet> compradelList = compra.getCompradetList();
+            for (Compradet detalle : compradelList) {
+                Producto p = productoDao.obtener(Producto.class, detalle.getIdproducto().getId());
+                if (p.getStockmin() == null) {
+                    p.setStockmin(BigDecimal.ZERO);
+                }
+                p.setStockmin(p.getStockmin().subtract(new BigDecimal(detalle.getCantidad())));
+                if (p.getStockmin().compareTo(BigDecimal.ZERO) < 0) {
+                    throw new GeneralException("No hay stock para el producto: " + p.getNombre(), "No hay stock para quitar el producto: " + p.getNombre(), loggerServicio);
+                }
+                productoDao.actualizar(p);
+            }
+            compraDao.eliminar(compra);
         } else {
             throw new GeneralException("Compra nulo", Mensaje.CAMPO_OBLIGATORIO_VACIO, loggerServicio);
         }
@@ -223,11 +247,11 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
         File cabecera = new File(URL_DOC_CAB + "" + nombrecab + extension);
         FileWriter escribir = new FileWriter(cabecera, false);
         escribir.write(
-                  compra.getFechaemision() + "|"
+                compra.getFechaemision() + "|"
                 + "01" + "|"
                 + compra.getDescripcion() + "|"
                 + tipoOld + "|"
-                + compra.getSerie()+"-"+correlativo+ "|"
+                + compra.getSerie() + "-" + correlativo + "|"
                 + compra.getIdtipodocumento().getTipo() + "|"
                 + compra.getDocproveedor() + "|"
                 + compra.getNombreproveedor() + "|"
@@ -254,20 +278,20 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
         FileWriter escribir = new FileWriter(detalle_det, false);
         for (int i = 0; i < detalle.size(); i++) {
             escribir.write(
-                "EA" + "|"
-                + detalle.get(i).getCantidad() + "|"
-                + detalle.get(i).getIdproducto().getId() + "|"
-                + detalle.get(i).getCodproductosunat() + "|"
-                + detalle.get(i).getIdproducto().getNombre() + "|"
-                + detalle.get(i).getValorunitariosinigv()+ "|"
-                + detalle.get(i).getDescuentototal()+ "|"
-                + detalle.get(i).getIgvitem()+ "|"
-                + detalle.get(i).getAfectacionigv() + "|"
-                + detalle.get(i).getIscitem() + "|"
-                + detalle.get(i).getTiposistemaisc() + "|"
-                + detalle.get(i).getPreciototal() + "|" 
-                + detalle.get(i).getPreciototalsinigv()+ "|"
-                + "\n"
+                    "EA" + "|"
+                    + detalle.get(i).getCantidad() + "|"
+                    + detalle.get(i).getIdproducto().getId() + "|"
+                    + detalle.get(i).getCodproductosunat() + "|"
+                    + detalle.get(i).getIdproducto().getNombre() + "|"
+                    + detalle.get(i).getValorunitariosinigv() + "|"
+                    + detalle.get(i).getDescuentototal() + "|"
+                    + detalle.get(i).getIgvitem() + "|"
+                    + detalle.get(i).getAfectacionigv() + "|"
+                    + detalle.get(i).getIscitem() + "|"
+                    + detalle.get(i).getTiposistemaisc() + "|"
+                    + detalle.get(i).getPreciototal() + "|"
+                    + detalle.get(i).getPreciototalsinigv() + "|"
+                    + "\n"
             );
         }
         escribir.close();
@@ -279,16 +303,16 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
         filtro.add(Restrictions.eq("estado", Boolean.TRUE));
         filtro.add(Restrictions.eq("nombre", "SERIE"));
         Parametro p = parametroDao.obtenerPorCriteriaSinProyecciones(filtro);
-        switch(compra.getTipooperacion()){
+        switch (compra.getTipooperacion()) {
             case "01":
-                compra.setSerie("F"+p.getValor());
+                compra.setSerie("F" + p.getValor());
                 break;
             case "03":
-                compra.setSerie("B"+p.getValor());
+                compra.setSerie("B" + p.getValor());
                 break;
             case "00":
-                compra.setSerie("N"+p.getValor());
-                break;    
+                compra.setSerie("N" + p.getValor());
+                break;
         }
     }
 
@@ -299,6 +323,103 @@ public class CompraServicioImp extends GenericoServicioImpl<Compra, Long> implem
         filtro.add(Restrictions.eq("nombre", "RUC"));
         Parametro p = parametroDao.obtenerPorCriteriaSinProyecciones(filtro);
         compra.setRucempresa(p.getValor());
+    }
+
+    @Override
+    public Map<String, Object> exportarCompras(Date desde, Date hasta, String seriecorrelativo, String usuario) throws Exception {
+        List<String> listaCabecera = new ArrayList();
+        List<String> listaCuerpo = new ArrayList();
+        Map<String, Object> respuesta = new HashMap<>();
+        try {
+            listaCabecera.add("SListado de compras");
+            if (desde != null) {
+                listaCabecera.add("SDesde: " + desde);
+            }
+            if (hasta != null) {
+                listaCabecera.add("SHasta: " + hasta);
+            }
+            if (seriecorrelativo != null && !seriecorrelativo.isEmpty()) {
+                listaCabecera.add("SCodigo: " + seriecorrelativo);
+            }
+            listaCabecera.add("SUsuario: " + usuario);
+            listaCabecera.add("S");
+            listaCuerpo.add("SCódigo de la compra" + "¬" + "SProducto" + "¬" + "SFecha Compra" + "¬" + "STotal" + "¬" + "S-" + "¬" + "SCodigo Producto" + "¬" + "SProducto" + "¬" + "SCantidad" + "¬" + "SPrecio" + "¬" + "SParcial");
+            List<Compra> compras = listarCompras(desde, hasta, seriecorrelativo, usuario);
+            for (Compra compra : compras) {
+                listaCuerpo.add(
+                        (compra.getSerie() == null ? "B" : "S" + compra.getSerie() + "-" + compra.getCorrelativo()) + "¬"
+                        + (compra.getDocproveedor()== null ? "B" : "S" + compra.getDocproveedor() + " " + compra.getNombreproveedor()) + "¬"
+                        + (compra.getFechaemision() == null ? "B" : "S" + compra.getFechaemision()) + "¬"
+                        + (compra.getImportetotal() < 0 ? "D0" : "D" + compra.getImportetotal()) + "¬"
+                        + "B" + "¬"
+                );
+                List<Compradet> compradelList = obtenerVigentes(compra.getId());
+                for (Compradet detalle : compradelList) {
+                    listaCuerpo.add(
+                            "B" + "¬"
+                            + "B" + "¬"
+                            + "B" + "¬"
+                            + "B" + "¬"
+                            + "B" + "¬"
+                            + (detalle.getIdproducto().getId() == null ? "B" : "S" + detalle.getIdproducto().getId()) + "¬"
+                            + (detalle.getIdproducto().getNombre() == null ? "B" : "S" + detalle.getIdproducto().getNombre()) + "¬"
+                            + "D" + (detalle.getCantidad()) + "¬"
+                            + "D" + (detalle.getPreciototal()) + "¬"
+                            + "D" + (detalle.getPreciototal()) + "¬"
+                    );
+                }
+                listaCuerpo.add("B" + "¬");
+                listaCuerpo.add("B" + "¬");
+            }
+            respuesta.put("listaCabecera", listaCabecera);
+            respuesta.put("listaCuerpo", listaCuerpo);
+
+            return respuesta;
+        } catch (Exception e) {
+            if (e != null && e.getMessage() != null) {
+                listaCuerpo.add("S" + e.getMessage() + "¬");
+            } else {
+                listaCuerpo.add("SNo se encontraron resultados" + "¬");
+            }
+            respuesta.put("listaCabecera", listaCabecera);
+            respuesta.put("listaCuerpo", listaCuerpo);
+            return respuesta;
+        }
+    }
+
+    public List<Compra> listarCompras(Date desde, Date hasta, String seriecorrelativo, String usuario) {
+        Criterio filtro;
+        filtro = Criterio.forClass(Compra.class);
+        if (seriecorrelativo != null && !seriecorrelativo.isEmpty()) {
+            String serie;
+            Integer correlativo;
+            int inicio = seriecorrelativo.indexOf("-");
+            if (inicio <= 0) {
+                throw new GeneralException("Formato erroneo de busqueda", "Formato erroneo de busqueda", loggerServicio);
+            }
+            serie = seriecorrelativo.substring(0, inicio);
+            correlativo = Integer.parseInt(seriecorrelativo.substring(inicio + 1));
+            filtro.add(Restrictions.eq("serie", serie));
+            filtro.add(Restrictions.eq("correlativo", correlativo));
+        }
+        if (LimatamboUtil.sonNoNulos(desde, hasta)) {
+            if (desde.before(hasta)) {
+                filtro.add(Restrictions.between("fechaemision", desde, hasta));
+            } else {
+                throw new GeneralException("Las fechas son insconsistentes", "Las fechas son insconsistentes", loggerServicio);
+            }
+        }
+        filtro.setProjection(Projections.projectionList()
+                .add(Projections.property("id"), "id")
+                .add(Projections.property("serie"), "serie")
+                .add(Projections.property("correlativo"), "correlativo")
+                .add(Projections.property("fechaemision"), "fechaemision")
+                .add(Projections.property("docproveedor"), "docproveedor")
+                .add(Projections.property("importetotal"), "importetotal")
+                .add(Projections.property("nombreproveedor"), "nombreproveedor")
+                .add(Projections.property("usuariosave"), "usuariosave"));
+        filtro.addOrder(Order.desc("id"));
+        return compraDao.proyeccionPorCriteria(filtro, Compra.class);
     }
 
 }
